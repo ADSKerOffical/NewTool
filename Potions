@@ -1,0 +1,100 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Throwable Potion"
+tool.ToolTip = "There is acid in it"
+tool.Grip = CFrame.Angles(math.rad(90), 0, 0)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local pot = Instance.new("SpecialMesh", handle)
+pot.Scale = Vector3.new(1.2, 1.2, 1.2)
+pot.TextureId = "rbxassetid://72639133"
+pot.MeshId = "rbxassetid://72639103"
+pot.VertexColor = Vector3.new(1, 1, 1)
+
+tool.Activated:Connect(function()
+  local sound = Instance.new("Sound", game.Players.LocalPlayer.Character.PrimaryPart)
+  sound.SoundId = "rbxassetid://608600954"
+  sound.Volume = 1
+  sound.PlaybackSpeed = 1
+  sound.Looped = false
+  sound:Play()
+  game.Debris:AddItem(sound, 5)
+  
+  local potion = handle:Clone()
+  potion.Parent = workspace
+  potion.CanCollide = false
+  potion.Velocity = game.Players.LocalPlayer:GetMouse().Hit.LookVector * 210
+  tool:Destroy()
+  
+  potion.Touched:Connect(function(part)
+    if not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      local expl = Instance.new("Part", game.Workspace)
+      expl.CanCollide = false
+      expl.Color = Color3.new(0, 1, 0)
+      expl.Material = "Neon"
+      expl.Position = potion.Position
+      expl.Shape = "Ball"
+      expl.Anchored = true
+      game.Debris:AddItem(expl, 7)
+      
+      local sound = Instance.new("Sound", expl)
+      sound.SoundId = "rbxassetid://260496290"
+      sound.Volume = 1
+      sound.PlaybackSpeed = 1
+      sound:Play()
+      game.Debris:AddItem(sound, 8)
+      
+      local sound = Instance.new("Sound", expl)
+      sound.SoundId = "rbxassetid://99330842413410"
+      sound.Volume = 1
+      sound.PlaybackSpeed = 1
+      sound:Play()
+      game.Debris:AddItem(sound, 6)
+      
+      local partTweenn2 = game:GetService("TweenService"):Create(expl, TweenInfo.new(0.7, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out, 0, false, 0), {
+         Size = Vector3.new(15, 15, 15)
+      })
+      partTweenn2:Play()
+      
+local foundHumanoids = {}
+Usuario = game.Players.LocalPlayer
+for _, v in pairs(Workspace:GetDescendants()) do
+    if v:IsA("Humanoid") and v.RootPart then
+        local distance = (v.RootPart.Position - expl.Position).magnitude
+        if distance <= 13 then
+            table.insert(foundHumanoids, v)
+        end
+    end
+end
+
+for _, humanoid in pairs(foundHumanoids) do
+  coroutine.wrap(function()
+    humanoid:TakeDamage(10)
+    humanoid:ChangeState("FallingDown")
+     for i = 1, 7 do task.wait(0.75)
+       humanoid:TakeDamage(5)
+       
+       local sound = Instance.new("Sound", humanoid.RootPart)
+       sound.SoundId = "rbxassetid://5656490592"
+       sound.Volume = 1
+       sound.PlaybackSpeed = 1.1
+       sound.Looped = false
+       sound:Play()
+       game.Debris:AddItem(sound, 5)
+     end
+  end)()
+end 
+      
+      task.delay(0.35, function()
+       local partTweenn2 = game:GetService("TweenService"):Create(expl, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out, 0, false, 0), {
+         Transparency = 1,
+         Color = Color3.new(0, 0, 0)
+        })
+       partTweenn2:Play()
+      end)
+      
+      potion:Destroy()
+    end
+  end)
+end)
