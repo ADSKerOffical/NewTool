@@ -1,0 +1,34 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Focused Potion"
+tool.ToolTip = "Your health will be focused only on this health and you will not be able to change it for 5 seconds"
+tool.Grip = CFrame.Angles(math.rad(90), 0, 0)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local pot = Instance.new("SpecialMesh", handle)
+pot.Scale = Vector3.new(1.2, 1.2, 1.2)
+pot.TextureId = "rbxassetid://72639133"
+pot.MeshId = "rbxassetid://72639103"
+pot.VertexColor = Vector3.new(0, 0, 0.5)
+
+tool.Activated:Connect(function()
+tool.ManualActivationOnly = true
+ local sound = Instance.new("Sound", game.Players.LocalPlayer.Character.PrimaryPart)
+sound.SoundId = "rbxassetid://2245190929"
+sound.Volume = 1
+sound.PlaybackSpeed = 1
+sound.Looped = false
+sound:Play()
+game.Debris:AddItem(sound, 5)
+ task.wait(2)
+local aura = Instance.new("Sparkles", game.Players.LocalPlayer.Character.HumanoidRootPart)
+game.Debris:AddItem(aura, 5)
+
+local current = game.Players.LocalPlayer.Character.Humanoid.Health
+nje = game.Players.LocalPlayer.Character.Humanoid.HealthChanged:Connect(function()
+  game.Players.LocalPlayer.Character.Humanoid.Health = current
+end)
+task.delay(5, function() nje:Disconnect() end)
+ tool:Destroy()
+end)
