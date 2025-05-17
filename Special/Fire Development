@@ -17,14 +17,15 @@ firepos.CanTouch = false
 
 local particle = Instance.new("ParticleEmitter", firepos)
 particle.Texture = "https://www.roblox.com/asset-thumbnail/image?assetId=5223736012&width=432&height=432&format=png"
-particle.Rate = 100
+particle.Rate = 200 
+particle.Drag = 1
 particle.Enabled = false
 particle.Lifetime = NumberRange.new(0.5, 0.9)
 particle.EmissionDirection = Enum.NormalId.Right
 particle.LockedToPart = false
-particle.Speed = NumberRange.new(13, 30)
-particle.SpreadAngle = Vector2.new(30, -30)
-particle.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(1, 2.75)})
+particle.Speed = NumberRange.new(21, 43)
+particle.SpreadAngle = Vector2.new(15, -15)
+particle.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(1, 2)})
 
 local flamesound = Instance.new("Sound", firepos)
 flamesound.SoundId = "rbxassetid://108835547890095"
@@ -54,7 +55,7 @@ tool.Equipped:Connect(function()
   asset:Destroy()
 end)
 
-game.Players.LocalPlayer:GetMouse().Button1Down:Connect(function()
+bdcon = game.Players.LocalPlayer:GetMouse().Button1Down:Connect(function()
   if tool.Parent == game.Players.LocalPlayer.Character then
     particle.Enabled = true
     flamesound.Volume = 2
@@ -63,7 +64,7 @@ game.Players.LocalPlayer:GetMouse().Button1Down:Connect(function()
        repeat task.wait(0.05)
 local foundHumanoids = {}
 local Usuario = game.Players.LocalPlayer
-local radius = 13.5
+local radius = 17
 local origin = Usuario.Character.HumanoidRootPart.Position
 local direction = Usuario.Character.HumanoidRootPart.CFrame.LookVector
 
@@ -74,24 +75,32 @@ for _, v in pairs(workspace:GetDescendants()) do
         local distance = toHumanoid.magnitude
         local angle = math.acos(toHumanoid.Unit:Dot(direction))
 
-        if distance <= 25 and angle < math.rad(30) then
+        if distance <= 35 and angle < math.rad(30) then
             table.insert(foundHumanoids, v)
         end
     end
 end
 
 for _, humanoid in pairs(foundHumanoids) do
-    humanoid:TakeDamage(10)
+  humanoid:TakeDamage(12.3)
+  humanoid.RootPart.Velocity = (handle.Position - humanoid.RootPart.Position).Unit * -20
 end
        until flamesound.Volume == 0 or not tool
      end)
   end
 end)
 
-game.Players.LocalPlayer:GetMouse().Button1Up:Connect(function()
+bucon = game.Players.LocalPlayer:GetMouse().Button1Up:Connect(function()
   particle.Enabled = false
-   if tool.Parent == game.Players.LocalPlayer.Character or tool.Parent == game.Players.LocalPlayer.Backpack then
-     flamesound.Volume = 0
+   if tool.Parent == game.Players.LocalPlayer.Character then
+     if tool.Parent == game.Players.LocalPlayer.Backpack or tool.Parent == game.Players.LocalPlayer.Character then
+       flamesound.Volume = 0
+     end
      game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16
    end
+end)
+
+game.Players.LocalPlayer.Character.Humanoid.Died:Connect(function()
+  bdcon:Disconnect()
+  bucon:Disconnect()
 end)
