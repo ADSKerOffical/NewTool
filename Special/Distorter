@@ -1,0 +1,150 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Distorter"
+tool.ToolTip = "Sucks your opponents towards the projectile and gives you a repulsive aura"
+tool.Grip = CFrame.Angles(0, math.rad(90), 0)
+tool.GripPos = Vector3.new(1, -0.3, 0)
+tool.CanBeDropped = false
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://870916029"
+mesh.TextureId = "rbxassetid://870916032"
+mesh.Scale = Vector3.new(0.03, 0.03, 0.03)
+
+local function playsound(soundid, parent, speed, volume, deletetime, looped)
+  local sound = Instance.new("Sound", parent)
+  sound.SoundId = soundid
+  sound.Looped = looped or false
+  sound.PlaybackSpeed = speed or 1
+  sound.Volume = volume or 1
+  sound:Play()
+  game.Debris:AddItem(sound, deletetime or 60)
+end
+
+local shootpos = Instance.new("Part", handle)
+shootpos.Size = Vector3.new(1, 1, 1)
+shootpos.CanCollide = false
+shootpos.CanTouch = false
+shootpos.Transparency = 1
+
+local fastening = Instance.new("Weld", shootpos)
+fastening.Part0 = shootpos
+fastening.Part1 = handle
+fastening.C0 = CFrame.new(2, 0, 0)
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+local currentTime = tick()
+   if currentTime - lastPressTime >= 5 then
+      lastPressTime = currentTime
+    coroutine.wrap(function()
+local shoot = Instance.new("Part", workspace)
+shoot.CanCollide = false
+shoot.CFrame = shootpos.CFrame
+shoot.Shape = "Ball"
+shoot.Material = "Neon"
+shoot.Color = Color3.new(0, 0, 0)
+shoot.Size = Vector3.new(1.5, 1.5, 1.5)
+game.Debris:AddItem(shoot, 10)
+
+shoot.Destroying:Connect(function()
+   
+end)
+
+local effect = Instance.new("ParticleEmitter", shoot)
+effect.Texture = "rbxassetid://3916186365"
+effect.Speed = NumberRange.new(1, 1)
+effect.LockedToPart = true
+effect.Rate = 15
+effect.ZOffset = 0
+effect.Drag = 2
+effect.Acceleration = Vector3.new(0, -2, 0)
+effect.EmissionDirection = Enum.NormalId.Top
+effect.Orientation = Enum.ParticleOrientation.VelocityPerpendicular
+effect.ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume
+effect.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.5, 2.5), NumberSequenceKeypoint.new(1, 5)})
+effect.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.2, 0.03), NumberSequenceKeypoint.new(0.5, 0.5), NumberSequenceKeypoint.new(0.8, 0.75), NumberSequenceKeypoint.new(1, 1)})
+effect.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.new(0, 0, 0)), ColorSequenceKeypoint.new(1, Color3.new(0, 0, 0))})
+effect.Lifetime = NumberRange.new(2, 2)
+effect.RotSpeed = NumberRange.new(1000, 1000)
+
+local smoke = Instance.new("Smoke", shoot)
+smoke.RiseVelocity = 3
+smoke.Opacity = 0.1
+smoke.Color = Color3.new(0, 0, 0)
+smoke.Size = 3
+
+playsound("rbxassetid://179476152", handle, 1, 1, 10)
+playsound("rbxassetid://6878468501", handle, 1, 1, 10)
+playsound("rbxassetid://131179973", handle, 0.8, 1, 10)
+playsound("rbxassetid://6878476054", shoot, 1, 2, 10, true)
+
+local past = os.clock()
+
+local bv = Instance.new("BodyVelocity", shoot)
+bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+bv.Velocity = game.Players.LocalPlayer:GetMouse().Hit.LookVector * 30
+
+     task.spawn(function()
+       repeat task.wait()
+local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(shoot.Position, 15) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) and part.Parent:FindFirstChildOfClass("Humanoid").Health > 0 then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+for _, humanoid in next, humanoids do
+   humanoid:TakeDamage(1)
+   humanoid.RootPart.Velocity = (shoot.Position - humanoid.RootPart.Position).Unit * 230
+  if humanoid.Health <= 0 or humanoid:GetState() == "Dead" then
+    shoot.Size += Vector3.new(1, 1, 1)
+  end
+end
+       until not shoot or os.clock() - past >= 10
+     end)
+    end)()
+   end
+end)
+
+local aurasound = Instance.new("Sound", game.Players.LocalPlayer.Character.HumanoidRootPart)
+aurasound.SoundId = "rbxassetid://9065011501"
+aurasound.Looped = true
+aurasound.Volume = 0
+aurasound.PlaybackSpeed = 0.9
+aurasound:Play()
+
+tool.Equipped:Connect(function()
+  local partTweenn2 = game:GetService("TweenService"):Create(aurasound, TweenInfo.new(0.8, Enum.EasingStyle.Sine), {
+     Volume = 2
+  })
+ partTweenn2:Play()
+
+ task.spawn(function()
+  repeat task.wait(0.1)
+local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(game.Players.LocalPlayer.Character.HumanoidRootPart.Position, 10) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+for _, humanoid in next, humanoids do
+   humanoid.RootPart.Velocity += (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - humanoid.RootPart.Position).Unit * -100
+end
+  until tool.Parent ~= game.Players.LocalPlayer.Character
+ end)
+end)
+
+tool.Unequipped:Connect(function()
+  local partTweenn2 = game:GetService("TweenService"):Create(aurasound, TweenInfo.new(0.8, Enum.EasingStyle.Sine), {
+    Volume = 0
+  })
+ partTweenn2:Play()
+end)
