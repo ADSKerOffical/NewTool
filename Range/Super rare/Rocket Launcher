@@ -1,0 +1,117 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Rocket launcher"
+tool.ToolTip = "Beware of your own sights"
+tool.CanBeDropped = false
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://4579811742"
+mesh.TextureId = "rbxassetid://4579811761"
+mesh.Scale = Vector3.new(1, 1, 1)
+
+local firepos = Instance.new("Part", handle)
+firepos.Transparency = 1
+firepos.CanCollide = false
+
+local joint = Instance.new("Weld", firepos)
+joint.Part0 = firepos
+joint.Part1 = handle
+joint.C0 = CFrame.new(0, 0, 2)
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+local currentTime = tick()
+     if currentTime - lastPressTime >= 3.5 then
+          lastPressTime = currentTime
+local bullet = Instance.new("Part", workspace)
+bullet.CFrame = firepos.CFrame
+bullet.CFrame = CFrame.new(bullet.Position, game.Players.LocalPlayer:GetMouse().Hit.Position)
+bullet.Size = Vector3.new(1.5, 1.5, 1.5)
+bullet.Color = Color3.new(0.3, 0.3, 0.3)
+bullet.Shape = "Ball"
+bullet.Material = "SmoothPlastic"
+game.Debris:AddItem(bullet, 10)
+
+local sound = Instance.new("Sound", handle)
+sound.SoundId = "rbxassetid://2157448269"
+sound.Volume = 1
+sound.PlaybackSpeed = 1
+sound:Play()
+game.Debris:AddItem(sound, 10)
+
+game.Players.LocalPlayer.Character.HumanoidRootPart.Velocity += game.Players.LocalPlayer:GetMouse().Hit.LookVector * -50
+
+bullet.Touched:Connect(function(part)
+  if not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+    local explosion = Instance.new("Part", workspace)
+    explosion.Color = Color3.new(1, 1, 0)
+    explosion.Material = "Neon"
+    explosion.Shape = "Ball"
+    explosion.Position = bullet.Position
+    explosion.Size = Vector3.zero
+    explosion.CanCollide = false
+    explosion.CanTouch = false
+    explosion.Anchored = true
+    game.Debris:AddItem(explosion, 10)
+    
+    local sound = Instance.new("Sound", explosion)
+    sound.SoundId = "rbxassetid://5801257793"
+    sound.Volume = 2
+    sound.PlaybackSpeed = 1
+    sound:Play()
+    game.Debris:AddItem(sound, 10)
+    
+    local partTweenn2 = game:GetService("TweenService"):Create(explosion, TweenInfo.new(1, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+        Size = Vector3.new(30, 30, 30)
+      })
+    partTweenn2:Play()
+    
+    local foundHumanoids = {}
+    local foundParts = {}
+for _, v in pairs(Workspace:GetDescendants()) do
+    if v:IsA("Humanoid") and v.RootPart then
+        local distance = (v.RootPart.Position - explosion.Position).magnitude
+        if distance <= 25 then
+            table.insert(foundHumanoids, v)
+        end
+      elseif v:IsA("BasePart") and v.Anchored == false and not v.Parent:FindFirstChildOfClass("Humanoid") and (v.Position - explosion.Position).Magnitude <= 25 then
+           table.insert(foundParts, v)
+    end
+end
+
+     for _, humanoid in pairs(foundHumanoids) do
+       humanoid:TakeDamage(85)
+        if humanoid:IsDescendantOf(game.Players.LocalPlayer.Character) then
+          humanoid.RootPart.Velocity += humanoid.RootPart.CFrame.LookVector * -100 + Vector3.new(0, 25, 0)
+         else
+          humanoid.RootPart.Velocity = (explosion.Position - humanoid.RootPart.Position).Unit * -300
+       end
+    end
+    
+    for _, parts in next, foundParts do
+       parts.Velocity = (explosion.Position - parts.Position).Unit * -150
+    end
+    
+    task.delay(0.35, function()
+       local partTweenn2 = game:GetService("TweenService"):Create(explosion, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out, 0, false, 0), {
+         Transparency = 1,
+         Color = Color3.new(0, 0, 0)
+        })
+       partTweenn2:Play()
+      end)
+      
+      bullet:Destroy()
+  end
+end)
+
+local bulletform = Instance.new("SpecialMesh", bullet)
+bulletform.MeshId = "rbxassetid://1655951262"
+bulletform.Scale = Vector3.new(0.02, 0.02, 0.02)
+
+local bv = Instance.new("BodyVelocity", bullet)
+bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+bv.Velocity = game.Players.LocalPlayer:GetMouse().Hit.LookVector * 500
+    end
+end)
