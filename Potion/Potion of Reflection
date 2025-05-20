@@ -1,0 +1,131 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Potion or Reflection"
+tool.ToolTip = "Makes all projectiles fly in the opposite direction"
+tool.Grip = CFrame.Angles(math.rad(90), 0, 0)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local pot = Instance.new("SpecialMesh", handle)
+pot.Scale = Vector3.new(1.2, 1.2, 1.2)
+pot.TextureId = "rbxassetid://72639133"
+pot.MeshId = "rbxassetid://72639103"
+pot.VertexColor = Vector3.new(0, 0.95, 0.95)
+
+local potionaura = Instance.new("Part", handle)
+potionaura.Color = Color3.new(0, 1, 1)
+potionaura.Material = "ForceField"
+potionaura.Shape = "Ball"
+potionaura.Size = Vector3.zero
+potionaura.CanCollide = false
+
+local aurapos = Instance.new("Weld", potionaura)
+aurapos.Part0 = potionaura
+aurapos.Part1 = handle
+
+task.spawn(function()
+  repeat task.wait()
+    aurapos.C0 *= CFrame.Angles(math.rad(15), math.rad(15), math.rad(15))
+  until not aurapos
+end)
+
+tool.Activated:Connect(function()
+tool.ManualActivationOnly = true
+ local sound = Instance.new("Sound", game.Players.LocalPlayer.Character.PrimaryPart)
+sound.SoundId = "rbxassetid://2245190929"
+sound.Volume = 1
+sound.PlaybackSpeed = 1
+sound.Looped = false
+sound:Play()
+game.Debris:AddItem(sound, 5)
+   task.wait(2) tool:Destroy()
+   
+   local past = os.clock()
+  local shield = Instance.new("Part", workspace)
+  shield.Material = "ForceField"
+  shield.Size = Vector3.zero
+  shield.Color = Color3.new(0, 1, 1)
+  shield.CanCollide = false
+  shield.CanTouch = false
+  shield.Massless = true
+  shield.Shape = "Ball"
+  game.Debris:AddItem(shield, 25)
+  
+  local partTweenn2 = game:GetService("TweenService"):Create(shield, TweenInfo.new(1, Enum.EasingStyle.Exponential), {
+     Size = Vector3.new(15, 15, 15)
+   })
+  partTweenn2:Play()
+  
+  local sound = Instance.new("Sound", shield)
+  sound.SoundId = "rbxassetid://5599552449"
+  sound.Volume = 2.5
+  sound.PlaybackSpeed = 1
+  sound:Play()
+  game.Debris:AddItem(sound, 10)
+  
+  local aurasound = Instance.new("Sound", shield)
+  aurasound.SoundId = "rbxassetid://1825389232"
+  aurasound.Volume = 2
+  aurasound.PlaybackSpeed = 1
+  aurasound.Looped = true
+  aurasound:Play()
+  game.Debris:AddItem(aurasound, 25)
+  
+  local joint = Instance.new("Weld", shield)
+  joint.Part0 = shield
+  joint.Part1 = game.Players.LocalPlayer.Character.HumanoidRootPart
+  
+  task.spawn(function()
+   repeat task.wait()
+     joint.C0 *= CFrame.Angles(math.rad(15), math.rad(15), math.rad(15))
+    
+      for _, part in next, workspace:GetPartBoundsInRadius(shield.Position, 20) do
+        if part.Anchored == false and part:FindFirstChildOfClass("BodyVelocity") and not part.Parent:FindFirstChildOfClass("Humanoid") then
+          part:FindFirstChildOfClass("BodyVelocity").Velocity = -(part:FindFirstChildOfClass("BodyVelocity"))
+        end
+      end
+      
+      local humanoids = {}
+     for _, part in next, workspace:GetPartBoundsInRadius(shield.Position, 20) do
+        if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+           if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+             table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+          end
+       end
+    end
+
+     for _, humanoid in next, humanoids do
+       humanoid.RootPart.Velocity = (shield.Position - humanoid.RootPart.Position).Unit * -300
+       
+       local sound = Instance.new("Sound", shield)
+       sound.SoundId = "rbxassetid://8060079174"
+       sound.Volume = 1.5
+       sound.PlaybackSpeed = math.random(8, 10) / 10
+       sound:Play()
+       game.Debris:AddItem(sound, 10)
+     end
+   until not shield or shield.Size == Vector3.zero or shield == nil or os.clock() - past >= 20
+  end)
+  
+  task.wait(20)
+  
+  local partTweenn2 = game:GetService("TweenService"):Create(shield, TweenInfo.new(1, Enum.EasingStyle.Sine), {
+     Size = Vector3.zero
+   })
+  partTweenn2:Play()
+  local partTweenn2 = game:GetService("TweenService"):Create(aurasound, TweenInfo.new(1, Enum.EasingStyle.Sine), {
+     Volume = 0
+   })
+  partTweenn2:Play()
+end)
+
+tool.Equipped:Connect(function()
+  local partTweenn2 = game:GetService("TweenService"):Create(potionaura, TweenInfo.new(0.75, Enum.EasingStyle.Exponential), {
+     Size = Vector3.new(3, 3, 3)
+   })
+  partTweenn2:Play()
+end)
+
+tool.Unequipped:Connect(function()
+  potionaura.Size = Vector3.zero
+end)
