@@ -1,0 +1,69 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Cancellation potion"
+tool.ToolTip = "All projectiles are stopped and no longer active, and nearby entities are stunned for 10 seconds"
+tool.Grip = CFrame.Angles(math.rad(90), 0, 0)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local pot = Instance.new("SpecialMesh", handle)
+pot.Scale = Vector3.new(1.2, 1.2, 1.2)
+pot.TextureId = "rbxassetid://3276618974"
+pot.MeshId = "rbxassetid://72639103"
+
+tool.Activated:Connect(function()
+ local sound = Instance.new("Sound", game.Players.LocalPlayer.Character.PrimaryPart)
+sound.SoundId = "rbxassetid://12221944"
+sound.Volume = 2
+sound.PlaybackSpeed = 1
+sound.Looped = false
+sound:Play()
+game.Debris:AddItem(sound, 5)
+ 
+   for _, part in next, Workspace:GetPartBoundsInRadius(game.Players.LocalPlayer.Character.HumanoidRootPart.Position, 40) do
+     if part.Anchored == false and part:FindFirstChildOfClass("BodyVelocity") and not part.Parent:FindFirstChildOfClass("Humanoid") then
+       for _, bm in next, part:GetChildren() do
+         if bm:IsA("BodyMover") then
+           bm:Destroy()
+         end
+       end
+       
+       part.Velocity = Vector3.zero
+       part.AssemblyAngularVelocity = Vector3.zero
+     end
+   end
+   
+    local humanoids = {}
+   for _, part in next, workspace:GetPartBoundsInRadius(game.Players.LocalPlayer.Character.HumanoidRootPart.Position, 10) do
+     if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+       if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+         table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+       end
+     end
+   end
+
+   for _, humanoid in next, humanoids do
+     for _, bm in next, humanoid.Parent:GetDescendants() do
+       if bm:IsA("BodyMover") then
+         bm:Destroy()
+        elseif bm:IsA("Part") then
+         bm.Velocity = Vector3.zero
+         bm.AssemblyAngularVelocity = Vector3.zero
+         bm.AssemblyLinearVelocity = Vector3.zero
+       end
+     end
+   
+   humanoid.PlatformStand = true task.delay(10, function() humanoid.PlatformStand = false end)
+   
+   if game.Players:GetPlayerFromCharacter(humanoid.Parent) then
+     local player = game.Players:GetPlayerFromCharacter(humanoid.Parent)
+     local lockback = player.Character.ChildAdded:Connect(function(data)
+       if data:IsA("Tool") then
+         player.Character.Humanoid:UnequipTools()
+       end
+     end)
+     task.delay(10, function() lockback:Disconnect() end)
+   end
+ end
+ tool:Destroy()
+end)
