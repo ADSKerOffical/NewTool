@@ -20,6 +20,7 @@ sound.Looped = false
 sound:Play()
 game.Debris:AddItem(sound, 5)
  
+ local past = os.clock()
    for _, part in next, Workspace:GetPartBoundsInRadius(game.Players.LocalPlayer.Character.HumanoidRootPart.Position, 40) do
      if part.Anchored == false and part:FindFirstChildOfClass("BodyVelocity") and not part.Parent:FindFirstChildOfClass("Humanoid") then
        for _, bm in next, part:GetChildren() do
@@ -56,14 +57,15 @@ game.Debris:AddItem(sound, 5)
    
    humanoid.PlatformStand = true task.delay(10, function() humanoid.PlatformStand = false end)
    
-   if game.Players:GetPlayerFromCharacter(humanoid.Parent) then
-     local player = game.Players:GetPlayerFromCharacter(humanoid.Parent)
-     local lockback = player.Character.ChildAdded:Connect(function(data)
-       if data:IsA("Tool") then
-         player.Character.Humanoid:UnequipTools()
-       end
+  if game.Players:GetPlayerFromCharacter(humanoid.Parent) then
+    local player = game.Players:GetPlayerFromCharacter(humanoid.Parent)
+      task.spawn(function()
+        repeat task.wait()
+         if player.Character:FindFirstChildOfClass("Tool") then
+           player.Character.Humanoid:UnequipTools()
+         end
+       until os.clock() - past >= 10
      end)
-     task.delay(10, function() lockback:Disconnect() end)
    end
  end
  tool:Destroy()
