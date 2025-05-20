@@ -1,0 +1,167 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Throwable Fire Potion"
+tool.ToolTip = "Don\'t play with fire"
+tool.Grip = CFrame.Angles(math.rad(90), 0, 0)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local pot = Instance.new("SpecialMesh", handle)
+pot.Scale = Vector3.new(1.2, 1.2, 1.2)
+pot.TextureId = "rbxassetid://72639133"
+pot.MeshId = "rbxassetid://72639103"
+pot.VertexColor = Vector3.new(1, 1, 1)
+
+tool.Activated:Connect(function()
+  local sound = Instance.new("Sound", game.Players.LocalPlayer.Character.PrimaryPart)
+  sound.SoundId = "rbxassetid://608600954"
+  sound.Volume = 1
+  sound.PlaybackSpeed = 1
+  sound.Looped = false
+  sound:Play()
+  game.Debris:AddItem(sound, 5)
+  
+  local potion = handle:Clone()
+  potion.Parent = workspace
+  potion.CanCollide = false
+  potion.Velocity = game.Players.LocalPlayer:GetMouse().Hit.LookVector * 210
+  tool:Destroy()
+  
+  potion.Touched:Connect(function(part)
+    if not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      local expl = Instance.new("Part", game.Workspace)
+      expl.CanCollide = false
+      expl.Color = Color3.new(0.85, 0.85, 0)
+      expl.Material = "Neon"
+      expl.Position = potion.Position
+      expl.Shape = "Ball"
+      expl.Anchored = true
+      game.Debris:AddItem(expl, 7)
+      
+      local sound = Instance.new("Sound", expl)
+      sound.SoundId = "rbxassetid://260496290"
+      sound.Volume = 1
+      sound.PlaybackSpeed = 1
+      sound:Play()
+      game.Debris:AddItem(sound, 8)
+      
+      local sound = Instance.new("Sound", expl)
+      sound.SoundId = "rbxassetid://4403634269"
+      sound.Volume = 2
+      sound.PlaybackSpeed = 1
+      sound:Play()
+      game.Debris:AddItem(sound, 5)
+      
+      local sound = Instance.new("Sound", expl)
+      sound.SoundId = "rbxassetid://99330842413410"
+      sound.Volume = 1
+      sound.PlaybackSpeed = 1
+      sound:Play()
+      game.Debris:AddItem(sound, 6)
+      
+      local partTweenn2 = game:GetService("TweenService"):Create(expl, TweenInfo.new(0.7, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out, 0, false, 0), {
+         Size = Vector3.new(15, 15, 15)
+      })
+      partTweenn2:Play()
+      
+      for _, parte in next, workspace:GetPartBoundsInRadius(expl.Position, 16) do
+         if (parte.Size.X + parte.Size.Y + parte.Size.Z) <= 30 then
+           coroutine.wrap(function()
+            local fire = Instance.new("Fire", parte)
+            fire.Heat = 5
+            fire.Name = "Fire from the wall"
+            fire.Size = (parte.Size.X + parte.Size.Y + parte.Size.Z)
+            game.Debris:AddItem(fire, 20)
+            
+            local sound = Instance.new("Sound", parte)
+            sound.SoundId = "rbxassetid://9068935533"
+            sound.Volume = fire.Size / 9
+            sound.PlaybackSpeed = 1
+            sound.Looped = true
+            sound:Play()
+            game.Debris:AddItem(sound, 20)
+            
+            local firehit = parte.Touched:Connect(function(hit)
+             coroutine.wrap(function()
+               if hit and hit.Parent and hit.Parent:IsA("Model") and hit.Parent:FindFirstChildOfClass("Humanoid") and not hit.Parent.HumanoidRootPart:FindFirstChild("Fire from the wall") then
+                 local humanoid = hit.Parent:FindFirstChildOfClass("Humanoid")
+                 local fire2 = fire:Clone() fire2.Parent = humanoid.RootPart
+                 game.Debris:AddItem(fire2, 5)
+                 for i = 1, 10 do task.wait(0.5)
+                   humanoid:TakeDamage((parte.Size.X + parte.Size.Y + parte.Size.Z) / 2)
+                   if humanoid.Health <= 0 then
+         for _, pa in next, humanoid.Parent:GetDescendants() do
+           if pa:IsA("BasePart") then
+             pa.Color = Color3.new(0, 0, 0)
+            elseif pa:IsA("Accessory") and pa:FindFirstChild("Handle") then
+             pa.Handle.Color = Color3.new(0, 0, 0)
+           end
+         end
+       end
+                 end
+               end
+              end)()
+            end)
+            
+            task.delay(20, function() firehit:Disconnect() end)
+            end)()
+         end
+      end
+      
+local foundHumanoids = {}
+Usuario = game.Players.LocalPlayer
+for _, v in pairs(Workspace:GetDescendants()) do
+    if v:IsA("Humanoid") and v.RootPart then
+        local distance = (v.RootPart.Position - expl.Position).magnitude
+        if distance <= 13 then
+            table.insert(foundHumanoids, v)
+        end
+    end
+end
+
+for _, humanoid in pairs(foundHumanoids) do
+  coroutine.wrap(function()
+  
+  for _, part in next, humanoid.Parent:GetChildren() do
+    if part:IsA("BasePart") then
+      local fire = Instance.new("Fire", part)
+      game.Debris:AddItem(fire, 10)
+    end
+  end
+  
+  local sound = Instance.new("Sound", humanoid.RootPart)
+  sound.SoundId = "rbxassetid://9068935533"
+  sound.Volume = 1
+  sound.PlaybackSpeed = 1
+  sound.Looped = true
+  sound:Play()
+  game.Debris:AddItem(sound, 10)
+  
+    humanoid:TakeDamage(10)
+     for i = 1, 10 do task.wait(1)
+       humanoid:TakeDamage(5)
+       if humanoid.Health <= 0 then
+         for _, pa in next, humanoid.Parent:GetDescendants() do
+           if pa:IsA("BasePart") then
+             pa.Color = Color3.new(0, 0, 0)
+            elseif pa:IsA("Accessory") and pa:FindFirstChild("Handle") then
+             pa.Handle.Color = Color3.new(0, 0, 0)
+           end
+         end
+       end
+     end
+  end)()
+end 
+      
+      task.delay(0.35, function()
+       local partTweenn2 = game:GetService("TweenService"):Create(expl, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out, 0, false, 0), {
+         Transparency = 1,
+         Color = Color3.new(0, 0, 0)
+        })
+       partTweenn2:Play()
+      end)
+      
+      potion:Destroy()
+    end
+  end)
+end)
