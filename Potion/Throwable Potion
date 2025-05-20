@@ -1,6 +1,6 @@
 local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
-tool.Name = "Throwable Potion"
-tool.ToolTip = "There is acid in it"
+tool.Name = "Throwable Poison Potion"
+tool.ToolTip = ""
 tool.Grip = CFrame.Angles(math.rad(90), 0, 0)
 
 local handle = Instance.new("Part", tool)
