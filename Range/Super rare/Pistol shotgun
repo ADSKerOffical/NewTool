@@ -1,0 +1,66 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Pistol shotgun"
+tool.ToolTip = "Rapid fire and destructive"
+tool.Grip = CFrame.Angles(math.rad(0), 0, 0)
+tool.GripPos = Vector3.new(0, 0, 0)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local pot = Instance.new("SpecialMesh", handle)
+pot.Scale = Vector3.new(2.5, 2.5, 2.5)
+pot.MeshId = "rbxassetid://2755598933"
+pot.TextureId = "rbxassetid://2755598954"
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+local currentTime = tick()
+     if currentTime - lastPressTime >= 0.3 then
+        lastPressTime = currentTime
+       local sound = Instance.new("Sound", handle)
+       sound.SoundId = "rbxassetid://642890855"
+       sound.Volume = 1
+       sound.PlaybackSpeed = 1
+       sound:Play()
+       game.Debris:AddItem(sound, 10)
+       
+       local light = Instance.new("PointLight", handle)
+       light.Brightness = 2
+       light.Range = 6
+       light.Color = Color3.new(1, 1, 0)
+       game.Debris:AddItem(light, 0.075)
+       
+       for i = 1, 6 do
+        coroutine.wrap(function()
+         local bullet = Instance.new("Part", Workspace)
+         bullet.Size = Vector3.new(0.8, 0.8, 0.8)
+         bullet.Color = Color3.new(0.25, 0.25, 0.25)
+         bullet.Shape = "Ball"
+         bullet.Name = "BulletPS"
+         bullet.Material = "SmoothPlastic"
+         bullet.CanCollide = false
+         bullet.Position = handle.Position + game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.LookVector * 1.5
+         game.Debris:AddItem(bullet, 0.02)
+         
+         bullet.Touched:Connect(function(part)
+           if not part:IsDescendantOf(game.Players.LocalPlayer.Character) and part.Name ~= "BulletPS" then
+             if part and part.Parent and part.Parent:FindFirstChildOfClass("Humanoid") then
+              local humanoid = part.Parent:FindFirstChildOfClass("Humanoid")
+              humanoid:TakeDamage(5)
+              humanoid.RootPart.Velocity = game.Players.LocalPlayer:GetMouse().Hit.LookVector * 30
+              bullet:Destroy()
+              else
+              bullet:Destroy()
+             end
+           end
+         end)
+         
+         local bv = Instance.new("BodyVelocity", bullet)
+         bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+         local direction = game.Players.LocalPlayer:GetMouse().Hit.LookVector
+         local angle = math.rad(math.random(-20, 20))
+         bv.Velocity = Vector3.new(direction.X * math.cos(angle) - direction.Z * math.sin(angle), direction.Y, direction.X * math.sin(angle) + direction.Z * math.cos(angle)).Unit * 500
+         end)()
+       end
+    end
+end)
