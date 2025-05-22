@@ -11,17 +11,6 @@ mesh.MeshId = "rbxassetid://443685014"
 mesh.TextureId = "rbxassetid://443685020"
 mesh.Scale = Vector3.new(1.75, 1.75, 1.75)
 
-local shootpos = Instance.new("Part", handle)
-shootpos.Size = Vector3.new(1, 1, 1)
-shootpos.CanCollide = false
-shootpos.CanTouch = false
-shootpos.Transparency = 1
-
-local fastening = Instance.new("Weld", shootpos)
-fastening.Part0 = shootpos
-fastening.Part1 = handle
-fastening.C0 = CFrame.new(0, 0, 1.5)
-
 local lastPressTime = 0
 tool.Activated:Connect(function()
 local currentTime = tick()
@@ -34,8 +23,9 @@ local currentTime = tick()
         ball.Transparency = 0.05
         ball.Material = "Neon"
         ball.Shape = "Ball"
+        ball.Name = "Dular850Shot"
         ball.CanCollide = false
-        ball.Position = shootpos.Position
+        ball.Position = handle.Position + game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.LookVector * 2
         ball.CFrame = CFrame.new(ball.Position, mousepos)
         ball.Size = Vector3.new(1.5, 1.5, 1.5)
         game.Debris:AddItem(ball, 10)
@@ -48,27 +38,62 @@ local currentTime = tick()
         game.Debris:AddItem(sound, 10)
         
         local flash = Instance.new("PointLight", handle)
-        flash.Range = 10
-        flash.Brightness = 2
+        flash.Range = 8
+        flash.Brightness = 1.5
         flash.Color = Color3.new(0, 1, 1)
-        game.Debris:AddItem(flash, 0.2)
+        game.Debris:AddItem(flash, 0.075)
         
         local bv = Instance.new("BodyVelocity", ball)
         bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
         bv.Velocity = mousepos * 400
         
-        ball.Touched:Connect(function(part)
+       ball.Touched:Connect(function(part)
           if not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
-            if part.Parent:FindFirstChildOfClass("Humanoid") then
-             local humanoid = part.Parent:FindFirstChildOfClass("Humanoid")
-             humanoid:TakeDamage(20)
-             humanoid.RootPart.Velocity = mousepos * 100
-             ball:Destroy()
-              else
-             ball:Destroy()
-            end
+          local explosion = Instance.new("Part", workspace)
+          explosion.Anchored = true
+          explosion.CanCollide = false
+          explosion.CanTouch = false
+          explosion.Size = Vector3.zero
+          explosion.Color = Color3.new(0, 1, 1)
+          explosion.Shape = "Ball"
+          explosion.Material = "Neon"
+          explosion.Position = ball.Position
+          game.Debris:AddItem(explosion, 8)
+          ball:Destroy()
+          
+          local partTweenn2 = game:GetService("TweenService"):Create(explosion, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {
+              Size = Vector3.new(20, 20, 20)
+            })
+          partTweenn2:Play()
+          
+          task.delay(0.5, function()
+           explosion.Material = "SmoothPlastic"
+            local partTweenn2 = game:GetService("TweenService"):Create(explosion, TweenInfo.new(0.3, Enum.EasingStyle.Sine), {
+                 Transparency = 1,
+                 Color = Color3.new(0, 0, 0)
+              })
+            partTweenn2:Play()
+          end)
+          
+              local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(explosion.Position, 20) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+for _, humanoid in next, humanoids do
+   humanoid:TakeDamage(20)
+   humanoid.RootPart.Velocity = (explosion.Position - humanoid.RootPart.Position).Unit * -150
+    local random = math.random(1, 8)
+    if random == 1 then
+      humanoid:ChangeState("FallingDown")
+    end
+end
           end
-        end)
+       end)
         
       end 
     end
