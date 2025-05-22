@@ -1,0 +1,137 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Throwable Freeze Potion"
+tool.ToolTip = ""
+tool.Grip = CFrame.Angles(math.rad(90), 0, 0)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local pot = Instance.new("SpecialMesh", handle)
+pot.Scale = Vector3.new(1.2, 1.2, 1.2)
+pot.TextureId = "rbxassetid://72639133"
+pot.MeshId = "rbxassetid://72639103"
+pot.VertexColor = Vector3.new(0, 1, 1)
+
+tool.Activated:Connect(function()
+  local sound = Instance.new("Sound", game.Players.LocalPlayer.Character.PrimaryPart)
+  sound.SoundId = "rbxassetid://608600954"
+  sound.Volume = 1
+  sound.PlaybackSpeed = 1
+  sound.Looped = false
+  sound:Play()
+  game.Debris:AddItem(sound, 5)
+  
+  local potion = handle:Clone()
+  potion.Parent = workspace
+  potion.CanCollide = false
+  potion.Velocity = game.Players.LocalPlayer:GetMouse().Hit.LookVector * 210
+  tool:Destroy()
+  
+  potion.Touched:Connect(function(part)
+    if not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      local expl = Instance.new("Part", game.Workspace)
+      expl.CanCollide = false
+      expl.Color = Color3.new(0, 1, 1)
+      expl.Material = "Neon"
+      expl.Position = potion.Position
+      expl.Shape = "Ball"
+      expl.Anchored = true
+      game.Debris:AddItem(expl, 7)
+      
+      local sound = Instance.new("Sound", expl)
+      sound.SoundId = "rbxassetid://260496290"
+      sound.Volume = 1
+      sound.PlaybackSpeed = 1
+      sound:Play()
+      game.Debris:AddItem(sound, 8)
+      
+      local sound = Instance.new("Sound", expl)
+      sound.SoundId = "rbxassetid://632831227"
+      sound.Volume = 2.4
+      sound.PlaybackSpeed = 1
+      sound:Play()
+      game.Debris:AddItem(sound, 6)
+      
+      local partTweenn2 = game:GetService("TweenService"):Create(expl, TweenInfo.new(0.7, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out, 0, false, 0), {
+         Size = Vector3.new(15, 15, 15)
+      })
+      partTweenn2:Play()
+      
+      local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(expl.Position, 15) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+for _, humanoid in next, humanoids do
+   coroutine.wrap(function()
+     humanoid:TakeDamage(10)
+     
+     if humanoid.RootPart:FindFirstChild("TFP_HumanoidState_Ice") then return end
+     for _, part in next, humanoid.Parent:GetDescendants() do
+       if part:IsA("BasePart") then
+         coroutine.wrap(function()
+           part.Anchored = true
+            task.wait(6)
+           part.Anchored = false
+         end)()
+       end
+     end
+     
+     local sound = Instance.new("Sound", humanoid.RootPart)
+     sound.SoundId = "rbxassetid://747238556"
+     sound.Volume = 1
+     sound.PlaybackSpeed = 1
+     sound:Play()
+     game.Debris:AddItem(sound, 6)
+     
+     local ice = Instance.new("Part", humanoid.RootPart)
+     ice.CanCollide = true
+     ice.Anchored = true
+     ice.Name = "TFP_HumanoidState_Ice"
+     ice.CFrame = humanoid.RootPart.CFrame
+     ice.Material = "Glass"
+     ice.Transparency = 0.3
+     ice.Color = Color3.new(0, 1, 1)
+     ice.Size = Vector3.new(2 + humanoid.RootPart.Size.X * 1.5, 2 + humanoid.RootPart.Size.Y * 2, 2 + humanoid.RootPart.Size.Z * 1.5)
+     game.Debris:AddItem(ice, 10)
+     
+     task.wait(5.9)
+     
+     local sound = Instance.new("Sound", ice)
+     sound.SoundId = "http://www.roblox.com/Asset?ID=87015121"
+     sound.Volume = 0.5
+     sound.PlaybackSpeed = 1
+     sound:Play()
+     game.Debris:AddItem(sound, 10)
+     
+     for _, part in next, humanoid.Parent:GetChildren() do
+       if part:IsA("BasePart") then
+         local blof = ice:Clone()
+         blof.Parent = workspace
+         blof.Size = Vector3.new(part.Size.X / 1.35, part.Size.Y / 1.35, part.Size.Z / 1.35)
+         blof.CFrame = part.CFrame
+         blof.Anchored = false
+         blof.CanCollide = true
+         game.Debris:AddItem(blof, 10)
+       end
+     end
+     ice:Destroy()
+   end)()
+end
+      
+      task.delay(0.35, function()
+       local partTweenn2 = game:GetService("TweenService"):Create(expl, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out, 0, false, 0), {
+         Transparency = 1,
+         Color = Color3.new(0, 0, 0)
+        })
+       partTweenn2:Play()
+      end)
+      
+      potion:Destroy()
+    end
+  end)
+end)
