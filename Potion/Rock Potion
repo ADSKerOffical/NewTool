@@ -1,0 +1,91 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Rock Potion"
+tool.ToolTip = "You freeze for 5 seconds and turn into stone and cant using tools, but become invulnerable to any projectiles"
+tool.Grip = CFrame.Angles(math.rad(90), 0, 0)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+handle.Material = "Rock"
+handle.Color = Color3.new(0.25, 0.25, 0.25)
+
+local pot = Instance.new("SpecialMesh", handle)
+pot.Scale = Vector3.new(1.2, 1.2, 1.2)
+pot.MeshId = "rbxassetid://72639103"
+
+tool.Activated:Connect(function()
+tool.ManualActivationOnly = true
+ local sound = Instance.new("Sound", game.Players.LocalPlayer.Character.PrimaryPart)
+sound.SoundId = "rbxassetid://2245190929"
+sound.Volume = 1
+sound.PlaybackSpeed = 1
+sound.Looped = false
+sound:Play()
+game.Debris:AddItem(sound, 5)
+  task.wait(2)
+  tool:Destroy()
+  
+  local saved = game.Players.LocalPlayer.Character.Humanoid.Health
+  fhk = game.Players.LocalPlayer.Character.Humanoid.HealthChanged:Connect(function()
+    game.Players.LocalPlayer.Character.Humanoid.Health = saved
+  end)
+  
+  task.delay(5, function()
+    fhk:Disconnect()
+  end)
+  
+   for _, part in next, game.Players.LocalPlayer.Character:GetDescendants() do
+     if part:IsA("BasePart") then
+      part.Anchored = true task.delay(5, function() part.Anchored = false end)
+       for _, side in next, Enum.NormalId:GetEnumItems() do
+         local decal = Instance.new("Decal", part)
+         decal.Texture = "rbxassetid://17562116559"
+         decal.Face = side
+         game.Debris:AddItem(decal, 5)
+       end
+     elseif part:IsA("SpecialMesh") then
+       coroutine.wrap(function()
+       local original = part.TextureId
+         part.TextureId = "rbxassetid://17562116559"
+         task.wait(5)
+         part.TextureId = original
+       end)()
+     end
+   end
+   task.wait(5)
+   
+   local sound = Instance.new("Sound", game.Players.LocalPlayer.Character.HumanoidRootPart)
+   sound.SoundId = "http://www.roblox.com/Asset?ID=87015121"
+   sound.Volume = 1.5
+   sound.PlaybackSpeed = 1
+   sound:Play()
+   game.Debris:AddItem(sound, 8)
+   
+   local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(game.Players.LocalPlayer.Character.HumanoidRootPart.Position, 10) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+for _, humanoid in next, humanoids do
+   humanoid:TakeDamage(15)
+   humanoid.RootPart.Velocity = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - humanoid.RootPart.Position).Unit * -75
+end
+   
+   for _, part in next, game.Players.LocalPlayer.Character:GetChildren() do
+     if part:IsA("BasePart") then
+       local rock = Instance.new("Part", workspace)
+       rock.Size = Vector3.new(part.Size.X / 1.35, part.Size.Y / 1.35, part.Size.Z / 1.35)
+       rock.CFrame = part.CFrame
+       game.Debris:AddItem(rock, 10)
+       
+       for _, side in next, Enum.NormalId:GetEnumItems() do
+         local decal = Instance.new("Decal", rock)
+         decal.Texture = "rbxassetid://17562116559"
+         decal.Face = side
+       end
+     end
+   end
+end)
