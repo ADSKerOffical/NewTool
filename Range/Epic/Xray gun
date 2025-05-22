@@ -1,0 +1,59 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Xray gun"
+tool.ToolTip = "Bullets with xray"
+tool.Grip = CFrame.Angles(math.rad(0), math.rad(180), 0)
+tool.GripPos = Vector3.new(0, -0.5, -0.5)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://454824984"
+mesh.TextureId = "rbxassetid://454824996"
+mesh.Scale = Vector3.new(0.002, 0.002, 0.002)
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+local currentTime = tick()
+    if currentTime - lastPressTime >= 0.5 then
+       lastPressTime = currentTime
+local shot = Instance.new("Part", workspace)
+shot.CFrame = handle.CFrame * CFrame.new(0, 0, -1.5)
+shot.CFrame = CFrame.new(shot.Position, game.Players.LocalPlayer:GetMouse().Hit.Position)
+shot.Color = Color3.new(0, 0.9, 0.75)
+shot.Size = Vector3.new(2, 2, 1)
+shot.Material = "Neon"
+shot.CanCollide = false
+game.Debris:AddItem(shot, 15)
+
+shot.Touched:Connect(function(hit)
+  if not hit:IsDescendantOf(game.Players.LocalPlayer.Character) then
+    if hit.Parent:FindFirstChildOfClass("Humanoid") then
+      hit.Parent:FindFirstChildOfClass("Humanoid"):TakeDamage(35)
+      shot:Destroy()
+      if not hit.Parent:FindFirstChild("XrayGunHL") then
+        local highlight = Instance.new("Highlight", hit.Parent)
+        highlight.Adornee = hit.Parent
+        highlight.FillColor = Color3.new(0, 0.9, 0.75)
+        highlight.OutlineColor = Color3.new(0, 0.9, 0.75)
+        highlight.Name = "XrayGunHL"
+        game.Debris:AddItem(highlight, 5)
+      end
+    else
+      shot:Destroy()
+    end
+  end
+end)
+
+local sound = Instance.new("Sound", handle)
+sound.SoundId = "rbxassetid://114488148"
+sound.Volume = 1
+sound.PlaybackSpeed = 1
+sound:Play()
+game.Debris:AddItem(sound, 7)
+
+local bv = Instance.new("BodyVelocity", shot)
+bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+bv.Velocity = game.Players.LocalPlayer:GetMouse().Hit.LookVector * 200
+    end
+end)
