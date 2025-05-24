@@ -1,0 +1,222 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "RGB"
+tool.ToolTip = "RGB: Rainbow weapon"
+tool.TextureId = "rbxassetid://6406460929"
+tool.GripPos = Vector3.new(0, -0.325, 0.5)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://130099641"
+mesh.Scale = Vector3.new(0.75, 0.75, 0.75)
+
+local aura_root = Instance.new("Part", handle)
+aura_root.CanCollide = false
+aura_root.Massless = true
+aura_root.Shape = "Ball"
+aura_root.Size = Vector3.new(50, 50, 50)
+aura_root.Material = "ForceField"
+
+local joint = Instance.new("Weld", aura_root)
+joint.Part0 = aura_root
+joint.Part1 = handle
+joint.C0 = CFrame.new(0, 0, 0)
+
+local function make_circle_explosion(humanoid)
+  if humanoid:IsA("Humanoid") and humanoid.Health <= 0 and humanoid:GetStateEnabled("Dead") == true and humanoid:GetAttribute("Neered") == nil then
+   humanoid:SetAttribute("Neered", false)
+    for i = 1, 7 do
+      local colors = {Color3.new(1, 0, 0), Color3.new(0, 1, 0), Color3.new(0, 0, 1), Color3.new(1, 0, 1), Color3.new(1, 1, 0), Color3.new(0, 1, 1), Color3.new(1, 0.5, 0)}
+      local shoot = Instance.new("Part", workspace)
+      shoot.Color = colors[i]
+      shoot.Name = "RGB_CircleShoot"
+      shoot.Position = humanoid.RootPart.Position + Vector3.new(0, 0.7, 0)
+      shoot.CanCollide = false
+      shoot.Size = Vector3.new(1.5, 1.5, 1.5)
+      shoot.Material = "Neon"
+      shoot.Shape = "Ball"
+      game.Debris:AddItem(shoot, 9)
+      
+      shoot.Touched:Connect(function(part)
+        if not part:IsDescendantOf(game.Players.LocalPlayer.Character) and not part:IsDescendantOf(humanoid.Parent) and part.Name ~= "RGB_CircleShoot" then
+          local explosion = shoot:Clone()
+          explosion.Parent = workspace
+          explosion.Size = Vector3.zero
+          explosion.CanTouch = false
+          explosion.CanQuery = false
+          explosion.Anchored = true
+          game.Debris:AddItem(explosion, 6)
+          shoot:Destroy()
+          
+          local sound = Instance.new("Sound", explosion)
+          sound.SoundId = "rbxassetid://6290067239"
+          sound.Volume = 2.3
+          sound.PlaybackSpeed = 1
+          sound:Play()
+          
+          local partTweenn2 = game:GetService("TweenService"):Create(explosion, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {
+              Size = Vector3.new(25, 25, 25)
+            })
+          partTweenn2:Play()
+          
+          local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(explosion.Position, 25) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+for _, humanoid in next, humanoids do
+  humanoid:TakeDamage(40)
+  humanoid.RootPart.Velocity = (explosion.Position - humanoid.RootPart.Position).Unit * -100
+  humanoid:UnequipTools()
+end
+          
+          task.delay(0.35, function()
+            local partTweenn2 = game:GetService("TweenService"):Create(explosion, TweenInfo.new(0.3, Enum.EasingStyle.Sine), {
+                 Size = Vector3.zero,
+                 Transparency = 1,
+                 Color = Color3.new(0, 0, 0)
+              })
+            partTweenn2:Play()
+          end)
+        end
+      end)
+      
+      local bv = Instance.new("BodyVelocity", shoot)
+      bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+      bv.Velocity = Vector3.new(350 * math.cos(math.rad(360 / 7 * i)), 0, 350 * math.sin(math.rad(360 / 7 * i)))
+    end
+  end
+end
+
+task.spawn(function()
+  repeat task.wait(0.1)
+    local partTweenn2 = game:GetService("TweenService"):Create(aura_root, TweenInfo.new(2, Enum.EasingStyle.Linear), {
+        Transparency = 1
+      })
+    partTweenn2:Play()
+    partTweenn2.Completed:Wait()
+    local partTweenn2 = game:GetService("TweenService"):Create(aura_root, TweenInfo.new(2, Enum.EasingStyle.Linear), {
+       Transparency = 0
+      })
+    partTweenn2:Play()
+    partTweenn2.Completed:Wait()
+  until not tool or not aura_root
+end)
+
+task.spawn(function() local i = 0
+ repeat game:GetService("RunService").RenderStepped:Wait()
+   handle.Color = Color3.fromHSV(i, 1, 1)
+   aura_root.Color = handle.Color
+   
+    if tool.Parent == game.Players.LocalPlayer.Character then
+   local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(aura_root.Position, 35) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+      for _, humanoid in next, humanoids do
+        humanoid.RootPart.Velocity = (aura_root.Position - humanoid.RootPart.Position).Unit * -200 + Vector3.new(0, 60, 0)
+      end
+    end
+   i = (i + game:GetService("RunService").RenderStepped:Wait() * 1) % 1
+ until not handle or not tool or not aura_root
+end)
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+local currentTime = tick()
+    if currentTime - lastPressTime >= 0.33 then
+       lastPressTime = currentTime
+local shoot = Instance.new("Part", Workspace)
+shoot.Shape = "Ball"
+shoot.Material = "Neon"
+shoot.Size = Vector3.zero
+shoot.CanCollide = false
+shoot.CanTouch = false
+shoot.CanQuery = false
+shoot.Anchored = true
+shoot.Position = game.Players.LocalPlayer:GetMouse().Hit.Position
+game.Debris:AddItem(shoot, 4)
+
+task.spawn(function() local i = 0
+   repeat game:GetService("RunService").RenderStepped:Wait()
+     shoot.Color = Color3.fromHSV(i, 1, 1)
+      i = (i + game:GetService("RunService").RenderStepped:Wait() * math.random(10, 50) / 10) % 1
+   until not shoot or shoot == nil
+end)
+     
+ local partTweenn2 = game:GetService("TweenService"):Create(shoot, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {
+     Size = Vector3.new(40, 40, 40)
+  })
+ partTweenn2:Play()
+ 
+ local sound = Instance.new("Sound", handle)
+ sound.SoundId = "rbxassetid://1145252750"
+ sound.Volume = 1
+ sound.PlaybackSpeed = 1
+ sound:Play()
+ game.Debris:AddItem(sound, 10)
+ 
+ local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(shoot.Position, 45) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+for _, humanoid in next, humanoids do
+   humanoid:TakeDamage(math.random(80, 135))
+   humanoid.RootPart.Velocity = (shoot.Position - humanoid.RootPart.Position).Unit * -150
+   local random = math.random(1, 7)
+   
+   if humanoid.Health <= 0 and humanoid:GetStateEnabled("Dead") == true then
+     make_circle_explosion(humanoid)
+   end
+   
+    if random == 1 then
+      for _, part in next, humanoid.Parent:GetDescendants() do
+        if part:IsA("BasePart") then
+          local rainbow = {Color3.new(1, 0, 0), Color3.new(0, 1, 0), Color3.new(0, 0, 1), Color3.new(1, 1, 0), Color3.new(1, 0, 1), Color3.new(0, 1, 1), Color3.new(1, 0.5, 0)}
+          part.Color = rainbow[math.random(1, #rainbow)]
+        elseif part:IsA("SpecialMesh") then
+          local rainbow = {Vector3.new(1, 0, 0), Vector3.new(0, 1, 0), Vector3.new(0, 0, 1), Vector3.new(1, 1, 0), Vector3.new(1, 0, 1), Vector3.new(0, 1, 1), Vector3.new(1, 0.5, 0)}
+          part.VertexColor = rainbow[math.random(1, #rainbow)]
+        end
+     end
+     
+     task.spawn(function()
+       for g = 1, 6 do task.wait(1)
+        if humanoid.Health <= 0 and humanoid:GetStateEnabled("Dead") == false then 
+         make_circle_explosion(humanoid)
+           break
+        end
+         humanoid:TakeDamage(10)
+       end
+     end)
+   end
+end
+ 
+     task.delay(0.35, function()
+      shoot.Material = "SmoothPlastic"
+       local partTweenn2 = game:GetService("TweenService"):Create(shoot, TweenInfo.new(0.3, Enum.EasingStyle.Sine), {
+           Transparency = 1
+         })
+       partTweenn2:Play()
+     end)
+   end
+end)
+
+tool.Equipped:Connect(function()
+  game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 32
+end)
