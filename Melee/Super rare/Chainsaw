@@ -1,0 +1,65 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Chainsaw"
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://536944822"
+mesh.TextureId = "rbxassetid://536944939"
+mesh.Scale = Vector3.new(0.1, 0.1, 0.1)
+
+local CSLoop = Instance.new("Sound", handle)
+CSLoop.SoundId = "rbxassetid://7501385270"
+CSLoop.Looped = true
+CSLoop.Volume = 0
+CSLoop.PlaybackSpeed = 1
+CSLoop:Play()
+
+local CSIdle = Instance.new("Sound", handle)
+CSIdle.SoundId = "rbxassetid://5960458961"
+CSIdle.Looped = true
+CSIdle.Volume = 0
+CSIdle.PlaybackSpeed = 1
+CSIdle:Play()
+
+tool.Equipped:Connect(function()
+  CSIdle.Volume = 2.5
+  tool.Unequipped:Wait()
+  CSIdle.Volume = 0
+end)
+
+bdcon = game.Players.LocalPlayer:GetMouse().Button1Down:Connect(function()
+  if tool.Parent == game.Players.LocalPlayer.Character then
+  CSLoop.Volume = 2
+  game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 7
+    repeat task.wait(0.0675)
+local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(handle.Position, 6.5) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+for _, humanoid in next, humanoids do
+   humanoid:TakeDamage(2.5)
+end
+    until not tool or tool.Parent ~= game.Players.LocalPlayer.Character or CSLoop.Volume == 0 or tool.Parent == game.Players.LocalPlayer.Backpack
+  end
+end)
+
+bucon = game.Players.LocalPlayer:GetMouse().Button1Up:Connect(function()
+   if tool.Parent == game.Players.LocalPlayer.Character then
+     if tool.Parent == game.Players.LocalPlayer.Backpack or tool.Parent == game.Players.LocalPlayer.Character then
+       CSLoop.Volume = 0
+       game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16
+     end
+   end
+end)
+
+game.Players.LocalPlayer.Character.Humanoid.Died:Connect(function()
+  bdcon:Disconnect()
+  bucon:Disconnect()
+end)
