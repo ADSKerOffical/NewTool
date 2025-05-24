@@ -1,0 +1,93 @@
+local player = game.Players.LocalPlayer
+local tool = Instance.new("Tool", player.Backpack)
+tool.Name = "Wreath"
+tool.ToolTip = "Resurrects the wearer after death and makes them invulnerable for 5 seconds"
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://138937497"
+mesh.TextureId = "rbxassetid://138937524"
+mesh.Scale = Vector3.new(1, 1, 1)
+
+tool.Activated:Connect(function()
+ local hat = handle:Clone()
+ hat.Parent = player.Character.Head
+ tool:Destroy()
+ player.Character.Humanoid.MaxHealth += 25
+ player.Character.Humanoid.Health = player.Character.Humanoid.MaxHealth
+ hat.Anchored = false
+ hat.CanCollide = false
+ 
+ local joint1 = Instance.new("Weld", hat)
+ joint1.C0 = CFrame.new(0, 0.6, 0)
+ joint1.Part0 = player.Character.Head
+ joint1.Part1 = hat
+ 
+ task.spawn(function()
+  repeat game:GetService("RunService").Stepped:Wait() until player.Character.Humanoid.Health <= 0 or player.Character.Humanoid:GetState() == "Dead"
+partTweenn2 = game:GetService("TweenService"):Create(hat:FindFirstChildOfClass("SpecialMesh"), TweenInfo.new(3, Enum.EasingStyle.Linear), {
+        VertexColor = Vector3.new(0.25, 0.25, 0.25)
+    })
+    partTweenn2:Play()
+player.Character.Humanoid.Health += player.Character.Humanoid.MaxHealth / 2
+
+local sound = Instance.new("Sound", hat)
+sound.SoundId = "rbxassetid://127416781"
+sound.Volume = 1.5
+sound.PlaybackSpeed = 1
+sound:Play()
+
+local greenball = Instance.new("Part", workspace)
+greenball.Size = Vector3.zero
+greenball.Anchored = true
+greenball.Material = "Neon"
+greenball.Position = player.Character.HumanoidRootPart.Position
+greenball.Color = Color3.new(0, 1, 0)
+greenball.CanCollide = false
+greenball.CanQuery = false
+greenball.CanTouch = false
+greenball.Shape = "Ball"
+game.Debris:AddItem(greenball, 10)
+
+local partTweenn2 = game:GetService("TweenService"):Create(greenball, TweenInfo.new(0.5, Enum.EasingStyle.Sine), {
+    Transparency = 1,
+    Size = Vector3.new(50, 50, 50),
+    Color = Color3.new(0, 0, 0)
+ })
+partTweenn2:Play()
+
+local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(game.Players.LocalPlayer.Character.HumanoidRootPart.Position, 45) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+for _, humanoid in next, humanoids do
+  if game.Players:GetPlayerFromCharacter(humanoid.Parent) then
+    if #game.Teams > 0 and game.Players:GetPlayerFromCharacter(humanoid.Parent).Team == player.Team then
+      humanoid.Health += player.Character.Humanoid.MaxHealth / 3
+    end
+  end
+end
+
+local sound = Instance.new("Sound", hat)
+sound.SoundId = "rbxassetid://116049255"
+sound.Volume = 1.5
+sound.PlaybackSpeed = 1
+sound:Play()
+
+     task.delay(10, function()
+       local drop = hat:Clone()
+       drop.Parent = workspace
+       drop.CanCollide = true
+       drop:BreakJoints()
+       game.Debris:AddItem(drop, 100)
+       hat:Destroy()
+     end)
+   end)
+end)
