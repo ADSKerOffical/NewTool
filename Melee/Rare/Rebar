@@ -1,0 +1,67 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Rebar"
+tool.ToolTip = ""
+tool.GripPos = Vector3.new(0, -2, 0)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+handle.Material = "DiamondPlate"
+handle.Size = Vector3.new(0.35, 5, 0.35)
+handle.Color = Color3.new(0.25, 0.25, 0.25)
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+local currentTime = tick()
+            if currentTime - lastPressTime >= 1.5 then
+                lastPressTime = currentTime
+  local anim = Instance.new("Animation", game.Players.LocalPlayer.Character)
+  anim.AnimationId = "rbxassetid://74897796"
+  anim.Name = "SlashAnimation"
+  local he = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(anim)
+  he:Play()
+  he:AdjustSpeed(2)
+  game.Debris:AddItem(anim, 7)
+  
+  task.wait(0.2)
+  
+  he:AdjustSpeed(2.5)
+  local sound = Instance.new("Sound", handle)
+  sound.SoundId = "rbxassetid://6241709963"
+  sound.Volume = 1.5
+  sound.PlaybackSpeed = 1
+  sound:Play()
+  game.Debris:AddItem(sound, 8)
+  
+  local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(handle.Position + game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.LookVector * 1.2, 5) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+    for _, humanoid in next, humanoids do
+       humanoid:TakeDamage(20)
+       humanoid.Sit = true
+       humanoid.RootPart.Velocity += game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.LookVector * 35 + Vector3.new(0, 15, 0)
+       
+       local sound = Instance.new("Sound", humanoid.RootPart)
+       sound.SoundId = "rbxassetid://7842407959"
+       sound.Volume = 2.5
+       sound.PlaybackSpeed = 1
+       game.Debris:AddItem(sound, 5)
+    end
+  end
+end)
+
+tool.Equipped:Connect(function()
+ local anim = Instance.new("Animation", game.Players.LocalPlayer.Character)
+anim.AnimationId = "rbxassetid://96065457"
+anim.Name = "HoldAnimation"
+local he = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(anim)
+he:Play()
+ tool.Unequipped:Wait()
+ he:Stop()
+ anim:Destroy()
+end)
