@@ -1,0 +1,110 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "SD-24"
+tool.ToolTip = "A gun from the future, each time its shells and damage become more and more"
+tool.GripPos = Vector3.new(0, -0.5, 0.8)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local mouse = game.Players.LocalPlayer:GetMouse()
+
+local guni = Instance.new("SpecialMesh", handle)
+guni.Scale = Vector3.new(1.1, 1.1, 1.1)
+guni.MeshId = "rbxassetid://98400644"
+guni.TextureId = "rbxassetid://98400574"
+
+local damagebuff = 0
+local sizebuff = 1.5
+local speedunbuff = 0
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+  local currentTime = tick()
+            if currentTime - lastPressTime >= 0.4 then
+                lastPressTime = currentTime
+    sizebuff += 0.25
+    damagebuff += 1.3
+    speedunbuff += 20
+      if sizebuff >= 5 then
+  sizebuff = 1.5  
+      elseif damagebuff >= 11 then
+  damagebuff = 0
+      elseif speedunbuff >= 170 then
+  speedunbuff = 0
+      end
+      
+local sound = Instance.new("Sound", handle)
+sound.SoundId = "rbxassetid://2783473931"
+sound.Volume = 1
+sound.PlaybackSpeed = 1
+sound.Looped = false
+sound:Play()
+game.Debris:AddItem(sound, 2)
+
+  local ball = Instance.new("Part", workspace)
+  ball.Color = Color3.new(0, 0.75, 0)
+  ball.Shape = "Ball"
+  ball.Material = "Neon"
+  ball.Size = Vector3.new(sizebuff, sizebuff, sizebuff)
+  ball.CanCollide = false
+  ball.Position = handle.Position
+  game.Debris:AddItem(ball, 8)
+
+  local bodyVelocity = Instance.new("BodyVelocity", ball)
+  bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+  bodyVelocity.Velocity = (mouse.Hit.Position - ball.Position).Unit * (350 - speedunbuff)
+  
+  ball.Touched:Connect(function(hit)
+    if not hit:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      local expl = Instance.new("Part", workspace)
+      expl.Size = Vector3.zero
+      expl.Shape = "Ball"
+      expl.Material = "Neon"
+      expl.Color = Color3.new(0, 1, 0)
+      expl.CanCollide = false
+      expl.CanTouch = false
+      expl.CanQuery = false
+      expl.Position = ball.Position
+      expl.Anchored = true
+      game.Debris:AddItem(expl, 2)
+      
+   local partTweenn2 = game:GetService("TweenService"):Create(expl, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {
+        Size = Vector3.new(20 + sizebuff, 20 + sizebuff, 20 + sizebuff)
+    })
+    partTweenn2:Play()
+    
+    task.delay(0.35, function()
+      local partTweenn2 = game:GetService("TweenService"):Create(expl, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {
+          Color = Color3.new(0, 0, 0),
+          Transparency = 1
+        })
+      partTweenn2:Play()
+    end)
+    
+local sound = Instance.new("Sound", expl)
+sound.SoundId = "rbxassetid://12221984"
+sound.Volume = 2
+sound.PlaybackSpeed = 1
+sound.Looped = false
+sound:Play()
+    
+    local foundHumanoids = {}
+Usuario = game.Players.LocalPlayer
+for _, v in pairs(workspace:GetDescendants()) do
+    if v:IsA("Humanoid") and v.RootPart and v.RootPart.Parent ~= Usuario.Character then
+        local distance = (v.RootPart.Position - expl.Position).magnitude
+        if distance <= (20 + sizebuff) then
+            table.insert(foundHumanoids, v)
+        end
+    end
+end
+
+for _, humanoid in pairs(foundHumanoids) do
+ humanoid:TakeDamage(10 + damagebuff)
+ humanoid.RootPart.Velocity = (expl.Position - humanoid.RootPart.Position).Unit * -(25 * sizebuff + speedunbuff / 3.5)
+end
+  ball:Destroy()
+    end
+  end)
+ end
+end)
