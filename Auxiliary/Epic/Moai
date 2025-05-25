@@ -1,0 +1,99 @@
+local player = game.Players.LocalPlayer
+local tool = Instance.new("Tool", player.Backpack)
+tool.Name = "Moai"
+tool.ToolTip = ""
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://15881174"
+mesh.TextureId = "rbxassetid://15881163"
+mesh.Scale = Vector3.new(1, 0.8, 1)
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+  local currentTime = tick()
+            if currentTime - lastPressTime >= 15 then
+                lastPressTime = currentTime 
+local moai = handle:Clone()
+moai.Parent = workspace
+moai.Anchored = true
+moai.CFrame = player.Character.HumanoidRootPart.CFrame
+moai.CanCollide = false
+
+task.delay(4, function()
+  local partTweenn2 = game:GetService("TweenService"):Create(moai, TweenInfo.new(1.3, Enum.EasingStyle.Linear), {
+      Transparency = 1
+    })
+  partTweenn2:Play()
+end)
+
+game.Debris:AddItem(moai, 8)
+local partTweenn2 = game:GetService("TweenService"):Create(moai, TweenInfo.new(1, Enum.EasingStyle.Exponential), {
+        CFrame = moai.CFrame * CFrame.new(0, 3.5, -3.5)
+    })
+    partTweenn2:Play()
+ task.wait(1.3)
+local partTweenn2 = game:GetService("TweenService"):Create(moai:FindFirstChildOfClass("SpecialMesh"), TweenInfo.new(0.2, Enum.EasingStyle.Exponential), {
+        Scale = Vector3.new(3, 3, 3)
+    })
+    partTweenn2:Play()
+ task.wait(0.2)
+local wave = Instance.new("Part", workspace)
+wave.Position = moai.Position
+wave.Size = Vector3.zero
+wave.Anchored = true
+wave.CanCollide = false
+game.Debris:AddItem(wave, 2)
+
+local wave_mesh = Instance.new("SpecialMesh", wave)
+wave_mesh.MeshId = "rbxassetid://20329976"
+wave_mesh.Scale = Vector3.new(1, 1, 1)
+
+local foundHumanoids = {}
+Usuario = game.Players.LocalPlayer
+for _, v in pairs(workspace:GetDescendants()) do
+    if v:IsA("Humanoid") and v.RootPart and v.RootPart.Parent ~= player.Character then
+        local distance = (v.RootPart.Position - moai.Position).magnitude
+        if distance <= 60 then
+            table.insert(foundHumanoids, v)
+        end
+    end
+end
+
+for _, humanoid in pairs(foundHumanoids) do
+ humanoid:TakeDamage(50)
+ humanoid:UnequipTools()
+ humanoid:ChangeState("FallingDown")
+ humanoid.RootPart.AssemblyAngularVelocity = Vector3.zero
+ humanoid.RootPart.Velocity = Vector3.new(0, 75, 0)
+  if humanoid.Health <= 0 and humanoid:GetStateEnabled("Dead") then
+    humanoid.RootPart.Velocity += (moai.Position - humanoid.RootPart.Position).Unit * -500 + Vector3.new(0, 100, 0)
+    
+    local sound = Instance.new("Sound", humanoid.RootPart)
+    sound.SoundId = "rbxassetid://17748195478"
+    sound.Volume = 1.5
+    sound.PlaybackSpeed = 1
+    sound:Play()
+  end
+end
+
+local partTweenn2 = game:GetService("TweenService"):Create(wave, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {
+      Transparency = 1
+   })
+   partTweenn2:Play()
+
+local partTweenn2 = game:GetService("TweenService"):Create(wave_mesh, TweenInfo.new(0.7, Enum.EasingStyle.Linear), {
+        Scale = Vector3.new(90, 5, 90)
+    })
+    partTweenn2:Play()
+    
+local sound = Instance.new("Sound", wave)
+sound.SoundId = "rbxassetid://6823153536"
+sound.Volume = 2
+sound.PlaybackSpeed = 1
+sound.Looped = false
+sound:Play()
+            end
+end)
