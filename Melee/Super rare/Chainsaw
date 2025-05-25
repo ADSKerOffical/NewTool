@@ -24,14 +24,14 @@ CSIdle.PlaybackSpeed = 1
 CSIdle:Play()
 
 tool.Equipped:Connect(function()
-  CSIdle.Volume = 2.5
+  CSIdle.Volume = 1.5
   tool.Unequipped:Wait()
   CSIdle.Volume = 0
 end)
 
 bdcon = game.Players.LocalPlayer:GetMouse().Button1Down:Connect(function()
   if tool.Parent == game.Players.LocalPlayer.Character then
-  CSLoop.Volume = 2
+  CSLoop.Volume = 0.75
   game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 7
     repeat task.wait(0.0675)
 local humanoids = {}
