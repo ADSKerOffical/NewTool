@@ -1,0 +1,117 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Electric Sword"
+tool.ToolTip = ""
+tool.Grip = CFrame.Angles(0, math.rad(90), 0)
+tool.GripPos = Vector3.new(0, -3, 0)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://50877375"
+mesh.TextureId = "rbxassetid://50877434"
+mesh.Scale = Vector3.new(2, 2, 2)
+
+local lastPressTime = 0
+local lastShoot = 0
+tool.Activated:Connect(function()
+  local currentTime = tick()
+            if currentTime - lastPressTime >= 2 then
+                lastPressTime = currentTime 
+local Anim = Instance.new("Animation")
+Anim.AnimationId = "rbxassetid://2954124238"
+local k = game:GetService("Players").LocalPlayer.Character.Humanoid:LoadAnimation(Anim)
+k:Play()
+k:AdjustSpeed(3)
+
+local sound = Instance.new("Sound", handle)
+sound.SoundId = "http://www.roblox.com/Asset?ID=92627850"
+sound.Volume = 1
+sound.PlaybackSpeed = 1
+sound.Looped = false
+sound:Play()
+  task.wait(0.2)
+
+if currentTime - lastShoot >= 7.5 then
+         lastShoot = currentTime
+     local slash_root = Instance.new("Part", workspace)
+     slash_root.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.Angles(0, math.rad(-90), 0)
+     slash_root.Size = Vector3.new(1, 1, 1)
+     slash_root.CanCollide = false
+     slash_root.Anchored = true
+     slash_root.CanQuery = false
+     slash_root.CanTouch = false
+     slash_root.Color = Color3.new(0, 0.9, 0.9)
+     slash_root.Material = "Neon"
+     game.Debris:AddItem(slash_root, 8)
+   
+     local slash_mesh = Instance.new("SpecialMesh", slash_root)
+     slash_mesh.MeshId = "rbxassetid://114638860826912"
+     slash_mesh.VertexColor = Vector3.new(0, 1, 1)
+     slash_mesh.Scale = Vector3.new(2, 2, 2)
+     
+     local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(game.Players.LocalPlayer.Character.HumanoidRootPart.Position + game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.LookVector * 8, 10) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+     for _, humanoid in next, humanoids do
+        humanoid:TakeDamage(25)
+        humanoid.RootPart.Velocity = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.LookVector * 100 + Vector3.new(0, 40, 0)
+        humanoid.PlatformStand = true task.delay(0.35, function() humanoid.PlatformStand = false end)
+     end
+   
+     local partTweenn2 = game:GetService("TweenService"):Create(slash_root, TweenInfo.new(0.65, Enum.EasingStyle.Exponential), {
+         CFrame = slash_root.CFrame * CFrame.new(-14, 0, 0),
+         Color = Color3.new(0, 0, 0),
+         Transparency = 1
+       })
+     partTweenn2:Play()
+  end
+
+local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(handle.Position, 8.75) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+for _, humanoid in pairs(humanoids) do
+  humanoid:TakeDamage(17.5)
+  local random = math.random(1, 8)
+  
+  if random == 1 then
+    humanoid:TakeDamage(12.5)
+    humanoid:ChangeState("FallingDown")
+    humanoid.RootPart.Velocity = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.LookVector * 40 + Vector3.new(0, 30, 0)
+
+     local sound = Instance.new("Sound", humanoid.RootPart)
+     sound.SoundId = "rbxassetid://5509750509"
+     sound.Volume = 1
+     sound.PlaybackSpeed = 1
+     sound.Looped = false
+     sound:Play()
+
+    task.spawn(function()
+      for i = 1, 5 do task.wait(0.5)
+        humanoid:TakeDamage(2)
+        humanoid.RootPart.AssemblyAngularVelocity = Vector3.new(math.random(-25, 25), math.random(-25, 25), math.random(-25, 25))
+      end
+    end)
+  end
+  
+ local sound = Instance.new("Sound", humanoid.RootPart)
+sound.SoundId = "rbxassetid://8060079174"
+sound.Volume = 2
+sound.PlaybackSpeed = 1
+sound.Looped = false
+sound:Play()
+end
+            end
+end)
