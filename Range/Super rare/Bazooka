@@ -1,0 +1,145 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Bazooka"
+tool:SetAttribute("Ammo", 1)
+tool:SetAttribute("CanAttack", true)
+tool.ToolTip = ""
+tool.GripPos = Vector3.new(0, -0.4, -1.2)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://94690054"
+mesh.TextureId = "rbxassetid://94689966"
+mesh.Scale = Vector3.new(1.25, 1.25, 1.25)
+
+local AmmoViewer_Root = Instance.new("ScreenGui", game.Players.LocalPlayer.PlayerGui)
+AmmoViewer_Root.ResetOnSpawn = true
+AmmoViewer_Root.Enabled = false
+
+local AmmoViewer = Instance.new("TextLabel", AmmoViewer_Root)
+AmmoViewer.Text = "1 / ∞"
+AmmoViewer.Position = UDim2.new(0.76, 0, 0.675, 0)
+AmmoViewer.Size = UDim2.new(0.06, 0.06, 0.06, 0.06)
+AmmoViewer.BackgroundTransparency = 1
+AmmoViewer.TextColor3 = Color3.new(1, 1, 1)
+AmmoViewer.TextSize = 14
+AmmoViewer.BorderSizePixel = 0
+
+tool:GetAttributeChangedSignal("Ammo"):Connect(function()
+  AmmoViewer.Text = tostring(tool:GetAttribute("Ammo")) .. " / ∞"
+end)
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+local currentTime = tick()
+    if currentTime - lastPressTime >= 1 and tool:GetAttribute("CanAttack") then
+       lastPressTime = currentTime
+    if tool:GetAttribute("Ammo") >= 1 then
+ tool:SetAttribute("Ammo", tool:GetAttribute("Ammo") - 1)
+local bullet = Instance.new("Part", workspace)
+bullet.Position = handle.Position
+bullet.CFrame = CFrame.new(bullet.Position, game.Players.LocalPlayer:GetMouse().Hit.Position)
+bullet.Size = Vector3.new(1.5, 1.5, 1.5)
+bullet.Color = Color3.new(0.3, 0.3, 0.3)
+bullet.CanCollide = false
+bullet.Shape = "Ball"
+bullet.Material = "SmoothPlastic"
+game.Debris:AddItem(bullet, 10)
+
+local sound = Instance.new("Sound", handle)
+sound.SoundId = "rbxassetid://153230666"
+sound.Volume = 1
+sound.PlaybackSpeed = 1
+sound:Play()
+game.Debris:AddItem(sound, 10)
+
+bullet.Touched:Connect(function(hit)
+  if not hit:IsDescendantOf(game.Players.LocalPlayer.Character) then
+    local explosion = Instance.new("Part", workspace)
+    explosion.Anchored = true
+    explosion.Color = Color3.new(1, 0.5, 0)
+    explosion.Shape = "Ball"
+    explosion.Position = bullet.Position
+    explosion.Size = Vector3.zero
+    explosion.Material = "Neon"
+    explosion.CanCollide = false
+    explosion.CanTouch = false
+    explosion.CanQuery = false
+    game.Debris:AddItem(explosion, 5)
+    
+    local sound = Instance.new("Sound", explosion)
+    sound.SoundId = "rbxassetid://7405939280"
+    sound.Volume = 2
+    sound.PlaybackSpeed = 1
+    sound:Play()
+    
+    local partTweenn2 = game:GetService("TweenService"):Create(explosion, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {
+         Size = Vector3.new(30, 30, 30)
+      })
+    partTweenn2:Play()
+    
+    task.delay(0.35, function()
+      local partTweenn2 = game:GetService("TweenService"):Create(explosion, TweenInfo.new(0.3, Enum.EasingStyle.Sine), {
+           Color = Color3.new(0, 0, 0),
+           Transparency = 1
+        })
+      partTweenn2:Play()
+    end)
+    
+    local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(explosion.Position, 30) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+   for _, humanoid in next, humanoids do
+     humanoid:TakeDamage(75)
+     humanoid.RootPart.Velocity = (explosion.Position - humanoid.RootPart.Position).Unit * -250
+     humanoid.PlatformStand = true task.delay(0.4, function() humanoid.PlatformStand = false end)
+   end
+   
+   for _, part in next, workspace:GetPartBoundsInRadius(explosion.Position, 30) do
+     if part.Anchored == false and not part:IsDescendantOf(game.Players.LocalPlayer.Character) and not part.Parent:FindFirstChildOfClass("Humanoid") then
+       part.Velocity = (explosion.Position - part.Position).Unit * -200
+     elseif part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+       game.Players.LocalPlayer.Character.HumanoidRootPart.Velocity = (explosion.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Unit * -200
+     end
+   end
+    
+    bullet:Destroy()
+  end
+end)
+
+local bulletform = Instance.new("SpecialMesh", bullet)
+bulletform.MeshId = "rbxassetid://1655951262"
+bulletform.Scale = Vector3.new(0.02, 0.02, 0.02)
+
+local bv = Instance.new("BodyVelocity", bullet)
+bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+bv.Velocity = game.Players.LocalPlayer:GetMouse().Hit.LookVector * 650
+game.Debris:AddItem(bv, 0.75)
+   else
+tool:SetAttribute("CanAttack", false)
+local sound = Instance.new("Sound", handle)
+sound.SoundId = "rbxassetid://135881403766527"
+sound.Volume = 1
+sound.PlaybackSpeed = 1
+sound:Play()
+game.Debris:AddItem(sound, 6)
+sound.Ended:Wait()
+tool:SetAttribute("Ammo", 1)
+tool:SetAttribute("CanAttack", true)
+     end
+   end
+end)
+
+tool.Equipped:Connect(function()
+  AmmoViewer_Root.Enabled = true
+  AmmoViewer_Root.Parent = game.Players:GetPlayerFromCharacter(tool.Parent).PlayerGui
+    tool.Unequipped:Wait()
+  AmmoViewer_Root.Enabled = false
+end)
