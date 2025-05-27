@@ -1,0 +1,97 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Water spliter"
+tool.ToolTip = "It is that a rescue weapon and a weapon of destruction"
+tool.GripPos = Vector3.new(0.25, -0.325, 0.5)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://130099641"
+mesh.TextureId = "rbxassetid://4773133135"
+mesh.Scale = Vector3.new(0.7, 0.7, 0.7)
+
+local WS2 = handle:Clone()
+WS2.Parent = handle
+
+local WS_Joint = Instance.new("Weld", WS2)
+WS_Joint.Part0 = WS2
+WS_Joint.Part1 = handle
+WS_Joint.C0 = CFrame.new(-0.25, 0, 0)
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+local currentTime = tick()
+    if currentTime - lastPressTime >= 0.75 then
+       lastPressTime = currentTime
+      for i = 1, 2 do
+        local shoot = Instance.new("Part", workspace)
+        shoot.CanCollide = false
+        shoot.CanQuery = false
+        shoot.Name = "WaterSplitter_Shoot"
+        shoot.Color = Color3.new(0, 1, 1)
+        shoot.Velocity = game.Players.LocalPlayer:GetMouse().Hit.LookVector * 250
+        shoot.CFrame = (i == 1 and handle.CFrame * CFrame.new(2, 0, 0) or WS2.CFrame * CFrame.new(-2, 0, 0))
+        shoot.Material = "Neon"
+        shoot.Size = Vector3.new(2.4, 2.4, 2.4)
+        game.Debris:AddItem(shoot, 10)
+        
+        shoot.Touched:Connect(function(hit)
+          if not hit:IsDescendantOf(game.Players.LocalPlayer.Character) and hit.Name ~= "WaterSplitter_Shoot" then
+            local explosion = shoot:Clone()
+            explosion.Shape = "Ball"
+            explosion.CanTouch = false
+            explosion.Anchored = true
+            explosion.Position = shoot.Position
+            explosion.Parent = workspace
+            game.Debris:AddItem(explosion, 4)
+            
+            local sound = Instance.new("Sound", explosion)
+            sound.SoundId = "rbxassetid://8453046168"
+            sound.Volume = 1
+            sound.PlaybackSpeed = 1
+            sound:Play()
+            
+      local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(explosion.Position, 23) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+     for _, humanoid in next, humanoids do
+       humanoid:TakeDamage(20)
+       humanoid.RootPart.Velocity = (explosion.Position - humanoid.RootPart.Position).Unit * -95
+     end
+     
+     for _, part in next, workspace:GetPartBoundsInRadius(explosion.Position, 23) do
+       if part.Material == Enum.Material.CrackedLava then
+         part.Material = "Rock"
+        elseif part:FindFirstChildOfClass("Fire") then
+         part:FindFirstChildOfClass("Fire").Enabled = false
+         game.Debris:AddItem(part:FindFirstChildOfClass("Fire"), 5)
+       end
+     end
+            
+            local partTweenn2 = game:GetService("TweenService"):Create(explosion, TweenInfo.new(0.0675, Enum.EasingStyle.Linear), {
+                Size = Vector3.new(15, 15, 15)
+              })
+            partTweenn2:Play()
+            
+            task.delay(0.0675, function()
+              local partTweenn2 = game:GetService("TweenService"):Create(explosion, TweenInfo.new(0.0675, Enum.EasingStyle.Linear), {
+                   Size = Vector3.zero
+                })
+              partTweenn2:Play()
+            end)
+            shoot:Destroy()
+          end
+        end)
+        
+        local BF = Instance.new("BodyForce", shoot)
+        BF.Force = Vector3.new(0, shoot:GetMass() * workspace.Gravity * 0.5, 0)
+      end
+    end
+end)
