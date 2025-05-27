@@ -1,0 +1,54 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Cavalry sword"
+tool:SetAttribute("Cooldown", 0.5)
+tool.ToolTip = "Antique captain\'s sword"
+tool.Grip = CFrame.new(0, 0, -2) * CFrame.Angles(math.rad(90), math.rad(65), 0)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://14716545"
+mesh.TextureId = "rbxassetid://14716632"
+mesh.Scale = Vector3.new(2, 2, 2)
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+local currentTime = tick()
+    if currentTime - lastPressTime >= tool:GetAttribute("Cooldown") then
+       lastPressTime = currentTime
+local anims = {"74909537", "74909551"}
+local Anim = Instance.new("Animation")
+Anim.AnimationId = "rbxassetid://" .. anims[math.random(1, #anims)]
+local k = game:GetService("Players").LocalPlayer.Character.Humanoid:LoadAnimation(Anim)
+k.Looped = false
+k:Play()
+k:AdjustSpeed(1.5 / tool:GetAttribute("Cooldown"))
+
+local sound = Instance.new("Sound", handle)
+sound.SoundId = "rbxassetid://5276819732"
+sound.Volume = 1
+sound.PlaybackSpeed = 1 + (tool:GetAttribute("Cooldown") <= 0.25 and 0.3 or 0)
+sound.RollOffMaxDistance = 50
+sound:Play()
+game.Debris:AddItem(sound, 5)
+
+local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(handle.Position, 8) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) and not (part.Parent:FindFirstChildOfClass("Humanoid").Health <= 0) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+      for _, humanoid in next, humanoids do
+         humanoid:TakeDamage(15 - (tool:GetAttribute("Cooldown") <= 0.25 and 5 or 0))
+         if humanoid.Health <= 0 and humanoid:GetStateEnabled("Dead") then
+           if tool:GetAttribute("Cooldown") ~= 0.25 then
+             tool:SetAttribute("Cooldown", 0.25) task.delay(5, function() tool:SetAttribute("Cooldown", 0.5) end)
+           end
+         end
+      end
+   end
+end)
