@@ -11,6 +11,10 @@ mesh.MeshId = "rbxassetid://138937497"
 mesh.TextureId = "rbxassetid://138937524"
 mesh.Scale = Vector3.new(1, 1, 1)
 
+hat.Destroying:Connect(function()
+  player.Character.Humanoid.MaxHealth = player.Character.Humanoid.MaxHealth - 25
+end)
+
 tool.Activated:Connect(function()
  local hat = handle:Clone()
  hat.Parent = player.Character.Head
@@ -27,6 +31,7 @@ tool.Activated:Connect(function()
  
  task.spawn(function()
   repeat game:GetService("RunService").Stepped:Wait() until player.Character.Humanoid.Health <= 0 or player.Character.Humanoid:GetState() == "Dead"
+    if not hat or hat == nil then return end
 partTweenn2 = game:GetService("TweenService"):Create(hat:FindFirstChildOfClass("SpecialMesh"), TweenInfo.new(3, Enum.EasingStyle.Linear), {
         VertexColor = Vector3.new(0.25, 0.25, 0.25)
     })
