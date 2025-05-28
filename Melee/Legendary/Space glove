@@ -1,0 +1,79 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Space glove"
+tool.ToolTip = "Behold the power of space!!!"
+tool.Grip = CFrame.new(0.15, 0.35, -0.25) * CFrame.Angles(math.rad(90), math.rad(180), math.rad(-90))
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+handle.Material = "Neon"
+handle.Color = Color3.new(1, 0, 0)
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://243183921"
+mesh.TextureId = "rbxassetid://178147795"
+mesh.Scale = Vector3.new(2 + (game.Players.LocalPlayer.Character:FindFirstChild("Right Arm") and game.Players.LocalPlayer.Character:FindFirstChild("Right Arm").Size.X / 1.5 or 0.3), 1.4, 2.3)
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+local currentTime = tick()
+   if currentTime - lastPressTime >= 2 then
+      lastPressTime = currentTime
+local anim = Instance.new("Animation", game.Players.LocalPlayer.Character)
+anim.AnimationId = "rbxassetid://243827693"
+game.Debris:AddItem(anim, 10)
+local playAn = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(anim)
+playAn:Play()
+ task.wait(0.25)
+ 
+ for _, part in next, workspace:GetPartBoundsInRadius(handle.Position, 35) do
+   if part.Anchored == false and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+     part.Velocity = (handle.Position - part.Position).Unit * -((handle.Position - part.Position).Magnitude * 2)
+   end
+ end
+ 
+ local sound = Instance.new("Sound", handle)
+ sound.SoundId = "rbxassetid://2648563122"
+ sound.Volume = 1.5
+ sound.PlaybackSpeed = 1
+ sound:Play()
+ game.Debris:AddItem(sound, 9)
+ 
+ local explosion_root = Instance.new("Part", workspace)
+ explosion_root.Anchored = true
+ explosion_root.CanCollide = false
+ explosion_root.CanTouch = false
+ explosion_root.CanQuery = false
+ explosion_root.Position = handle.Position
+ explosion_root.Size = Vector3.new(10, 10, 10)
+ game.Debris:AddItem(explosion_root, 2)
+ 
+ local explosion_mesh = Instance.new("SpecialMesh", explosion_root)
+ explosion_mesh.MeshId = "rbxassetid://12869217128"
+ explosion_mesh.TextureId = mesh.TextureId
+ explosion_mesh.Scale = Vector3.new(1, 1, 1)
+ 
+ explosion_mesh:GetPropertyChangedSignal("Scale"):Connect(function()
+   explosion_root.Transparency = -(explosion_mesh.Scale.X / 50)
+ end)
+ 
+ local partTweenn2 = game:GetService("TweenService"):Create(explosion_mesh, TweenInfo.new(0.4, Enum.EasingStyle.Exponential), {
+      Scale = Vector3.new(-50, -50, -50)
+   })
+ partTweenn2:Play()
+ 
+ local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(handle.Position, 35) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+    for _, humanoid in next, humanoids do
+      humanoid:TakeDamage(1000 / (handle.Position - humanoid.RootPart.Position).Magnitude * 2)
+      humanoid.RootPart.Velocity = (handle.Position - humanoid.RootPart.Position).Unit * -300
+      humanoid:ChangeState((handle.Position - humanoid.RootPart.Position).Magnitude <= 5 and "FallingDown" or "Running")
+    end
+  end
+end)
