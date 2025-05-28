@@ -12,6 +12,8 @@ local aura = Instance.new("Part", workspace)
 aura.CanCollide = false
 aura.Size = Vector3.new(7, 10, 7)
 aura.Transparency = 1
+aura.CanTouch = false
+aura.CanQuery = false
 aura.Massless = true
 
 local aura_sound = Instance.new("Sound", aura)
