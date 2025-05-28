@@ -1,0 +1,83 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Stop time bomb"
+tool.GripPos = Vector3.new(0, 0, 0.25)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://81148423"
+mesh.TextureId = "rbxassetid://81148452"
+mesh.Scale = Vector3.new(1, 1, 1)
+
+tool.Activated:Connect(function()
+  local bomb = handle:Clone()
+  bomb.CanCollide = true
+  bomb.Velocity = game.Players.LocalPlayer:GetMouse().Hit.LookVector * 100
+  bomb.Parent = Workspace
+  game.Debris:AddItem(bomb, 10)
+  tool:Destroy()
+  
+  task.delay(2.5, function()
+    local explosion = Instance.new("Part", workspace)
+    explosion.CanCollide = false
+    explosion.Position = bomb.Position
+    explosion.Anchored = true
+    explosion.CanTouch = false
+    explosion.CanQuery = false
+    explosion.Transparency = 0.7
+    explosion.Color = Color3.new(0.8, 0.8, 0.8)
+    explosion.Material = "Neon"
+    explosion.Shape = "Ball"
+    game.Debris:AddItem(explosion, 6)
+    bomb:Destroy()
+    
+    local sound = Instance.new("Sound", explosion)
+    sound.SoundId = "rbxassetid://2152227673"
+    sound.Volume = 1
+    sound.PlaybackSpeed = 1
+    sound:Play()
+    
+    local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(explosion.Position, 25) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+  for _, humanoid in next, humanoids do
+    for _, part in next, humanoid.Parent:GetDescendants() do
+      if part:IsA("BasePart") then
+        part.Anchored = true task.delay(5, function() part.Anchored = false end)
+      end
+    end
+  end
+    
+    local partTweenn2 = game:GetService("TweenService"):Create(explosion, TweenInfo.new(0.075, Enum.EasingStyle.Exponential), {
+         Size = Vector3.new(25, 25, 25)
+      })
+    partTweenn2:Play()
+    
+    task.delay(3, function()
+      local partTweenn2 = game:GetService("TweenService"):Create(explosion, TweenInfo.new(0.65, Enum.EasingStyle.Exponential), {
+          Size = Vector3.zero
+        })
+      partTweenn2:Play()
+    end)
+    
+    task.delay(0.75, function()
+      local explosion2 = explosion:Clone()
+      explosion2.Parent = workspace
+      game.Debris:AddItem(explosion2, 1)
+      
+      local partTweenn2 = game:GetService("TweenService"):Create(explosion2, TweenInfo.new(0.7, Enum.EasingStyle.Linear), {
+          Size = Vector3.zero
+        })
+      partTweenn2:Play()
+    end)
+  end)
+  
+  tool:Destroy()
+end)
