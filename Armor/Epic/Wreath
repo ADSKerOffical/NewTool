@@ -11,18 +11,38 @@ mesh.MeshId = "rbxassetid://138937497"
 mesh.TextureId = "rbxassetid://138937524"
 mesh.Scale = Vector3.new(1, 1, 1)
 
-hat.Destroying:Connect(function()
-  player.Character.Humanoid.MaxHealth = player.Character.Humanoid.MaxHealth - 25
-end)
-
 tool.Activated:Connect(function()
  local hat = handle:Clone()
+ hat.Name = "Armor_Wreath"
  hat.Parent = player.Character.Head
  tool:Destroy()
  player.Character.Humanoid.MaxHealth += 25
- player.Character.Humanoid.Health = player.Character.Humanoid.MaxHealth
+ player.Character.Humanoid.Health += 25
  hat.Anchored = false
  hat.CanCollide = false
+ 
+ local info = Instance.new("Folder", hat)
+ info.Name = "HatInfo"
+ 
+ local info_Owner = Instance.new("ObjectValue", info)
+ info_Owner.Name = "Owner"
+ info_Owner.Value = game.Players.LocalPlayer
+ 
+ local info_Rarity = Instance.new("StringValue", info)
+ info_Rarity.Name = "Rarity"
+ info_Rarity.Value = "Epic"
+ 
+ local info_Name = Instance.new("StringValue", info)
+ info_Name.Name = "Name"
+ info_Name.Value = "Wreath"
+ 
+ local info_Group = Instance.new("StringValue", info)
+ info_Group.Name = "Group"
+ info_Group.Value = "Natural"
+ 
+ hat.Destroying:Connect(function()
+   player.Character.Humanoid.MaxHealth = player.Character.Humanoid.MaxHealth - 25
+ end)
  
  local joint1 = Instance.new("Weld", hat)
  joint1.C0 = CFrame.new(0, 0.6, 0)
