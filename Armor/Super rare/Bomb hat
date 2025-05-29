@@ -1,0 +1,110 @@
+local player = game.Players.LocalPlayer
+local tool = Instance.new("Tool", player.Backpack)
+tool.Name = "Bomb hat"
+tool.ToolTip = "Spawns a bomb upon death"
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+handle.Size = Vector3.new(1.6, 1.6, 1.6)
+handle.CanCollide = false
+handle.CanQuery = false
+handle.Material = "Concrete"
+handle.Shape = "Ball"
+handle.Color = Color3.new(0.1, 0.1, 0.1)
+handle.Massless = true
+
+tool.Activated:Connect(function()
+ local hat = handle:Clone()
+ hat.Name = "Armor_Bomb hat"
+ hat.Parent = player.Character.Head
+ tool:Destroy()
+ hat.Anchored = false
+ hat.CanCollide = false
+ 
+ player.Character.Humanoid.Died:Connect(function()
+   if not hat or hat == nil then return end
+   local bomb = hat:Clone()
+   bomb.CanCollide = true
+   hat:Destroy()
+   bomb.Parent = workspace
+   bomb.Velocity += Vector3.new(0, 50, 0)
+   game.Debris:AddItem(bomb, 10)
+     if bomb:FindFirstChildOfClass("Weld") then bomb:FindFirstChildOfClass("Weld"):Destroy() end
+     
+     local sound = Instance.new("Sound", bomb)
+     sound.SoundId = "rbxassetid://1508144905"
+     sound.Volume = 1
+     sound.PlaybackSpeed = 1
+     sound:Play()
+     
+   task.delay(1.5, function()
+       local explosion = Instance.new("Part", workspace)
+       explosion.Anchored = true
+       explosion.CanCollide = false
+       explosion.CanTouch = false
+       explosion.CanQuery = false
+       explosion.Color = Color3.new(1, 0.5, 0)
+       explosion.Position = bomb.Position
+       explosion.Shape = "Ball"
+       explosion.Material = "Neon"
+       game.Debris:AddItem(explosion, 5)
+       bomb:Destroy()
+       
+       local sound = Instance.new("Sound", explosion)
+       sound.SoundId = "rbxassetid://18694762392"
+       sound.Volume = 1.25
+       sound.PlaybackSpeed = 1
+       sound:Play()
+       
+       local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(explosion.Position, 30) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+    for _, humanoid in next, humanoids do
+      humanoid:TakeDamage(135 / (explosion.Position - humanoid.RootPart.Position).Magnitude* 10)
+    end
+    
+    for _, part in next, workspace:GetPartBoundsInRadius(explosion.Position, 30) do
+      if part.Anchored == false then
+        part.Velocity = (explosion.Position - part.Position).Unit * -300
+      end
+    end
+       
+       local partTweenn2 = game:GetService("TweenService"):Create(explosion, TweenInfo.new(0.4, Enum.EasingStyle.Exponential), {
+            Size = Vector3.new(35, 35, 35),
+            Color = Color3.new(0, 0, 0),
+            Transparency = 1
+         })
+       partTweenn2:Play()
+   end)
+ end)
+ 
+ local info = Instance.new("Folder", hat)
+ info.Name = "HatInfo"
+ 
+ local info_Owner = Instance.new("ObjectValue", info)
+ info_Owner.Name = "Owner"
+ info_Owner.Value = game.Players.LocalPlayer
+ 
+ local info_Rarity = Instance.new("StringValue", info)
+ info_Rarity.Name = "Rarity"
+ info_Rarity.Value = "Super rare"
+ 
+ local info_Name = Instance.new("StringValue", info)
+ info_Name.Name = "Name"
+ info_Name.Value = "Bomb hat"
+ 
+ local info_Group = Instance.new("StringValue", info)
+ info_Group.Name = "Group"
+ info_Group.Value = "None" 
+ 
+ local joint1 = Instance.new("Weld", hat)
+ joint1.C0 = CFrame.new(0, 0.6, 0)
+ joint1.Part0 = player.Character.Head
+ joint1.Part1 = hat
+end)
