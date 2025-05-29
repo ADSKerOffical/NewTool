@@ -4,12 +4,6 @@ tool.ToolTip = "Looks can be deceiving"
 tool.Grip = CFrame.Angles(math.rad(0), math.rad(180), 0)
 tool.GripPos = Vector3.new(0, -0.4, -0.65)
 
-tool:SetAttribute("ToolInfo", {
-  RealOwner = game.Players.LocalPlayer,
-  RareWeapon = "Epic",
-  WeaponType = "Range'
-})
-
 local handle = Instance.new("Part", tool)
 handle.Name = "Handle"
 
@@ -48,11 +42,6 @@ bullet.Shape = "Ball"
 bullet.Material = "SmoothPlastic"
 bullet.CanCollide = false
 game.Debris:AddItem(bullet, 10)
-
-bullet:SetAttribute("BulletInfo", {
-  Owner = game.Players.LocalPlayer.Character,
-  BulletGunOwner = tool
-})
 
 local sound = Instance.new("Sound", handle)
 sound.SoundId = "rbxassetid://7850652207"
