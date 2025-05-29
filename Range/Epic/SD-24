@@ -3,12 +3,6 @@ tool.Name = "SD-24"
 tool.ToolTip = "A gun from the future, each time its shells and damage become more and more"
 tool.GripPos = Vector3.new(0, -0.5, 0.8)
 
-tool:SetAttribute("ToolInfo", {
-  RealOwner = game.Players.LocalPlayer,
-  RareWeapon = "Epic",
-  WeaponType = "Range"
-})
-
 local handle = Instance.new("Part", tool)
 handle.Name = "Handle"
 
@@ -55,11 +49,6 @@ game.Debris:AddItem(sound, 2)
   ball.CanCollide = false
   ball.Position = handle.Position
   game.Debris:AddItem(ball, 8)
-
-  ball:SetAttribute("BulletInfo", {
-    Owner = game.Players.LocalPlayer.Character,
-    BulletGunOwner = tool
-  })
 
   local bodyVelocity = Instance.new("BodyVelocity", ball)
   bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
