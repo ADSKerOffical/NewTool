@@ -1,0 +1,30 @@
+-- ServerScriptService, Script
+game.Players.PlayerAdded:Connect(function(player)
+  player.CharacterAdded:Connect(function(char)
+    player.Backpack.ChildAdded:Connect(function(tool)
+      if tool:IsA("Tool") then
+        tool.CanBeDropped = false
+        tool:GetPropertyChangedSignal("CanBeDropped"):Connect(function()
+          tool.CanBeDropped = false
+        end)
+      end
+    end)
+    char:WaitForChild("Humanoid").Died:Connect(function()
+      for _, tool in next, player.Character:GetChildren() do
+        if tool:IsA("Tool") then
+          tool.Enabled = false
+          tool.ManualActivationOnly = true
+          char.Humanoid:UnequipTools()
+        end
+      end
+      
+      for _, tool in next, player.Backpack:GetChildren() do
+        if tool:IsA("Tool") then
+          tool.Enabled = false
+          tool.ManualActivationOnly = false
+          char.Humanoid:UnequipTools()
+        end
+      end
+    end)
+  end)
+end)
