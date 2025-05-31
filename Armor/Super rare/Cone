@@ -1,0 +1,71 @@
+local player = game.Players.LocalPlayer
+local tool = Instance.new("Tool", player.Backpack)
+tool.Name = "Cone"
+tool.ToolTip = "When killed, it leaves a cone that will deal damage when touched"
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://14701901850"
+mesh.TextureId = "rbxassetid://14701367375"
+mesh.Scale = Vector3.new(1, 1, 1)
+
+tool.Activated:Connect(function()
+ local hat = handle:Clone()
+ hat.Parent = player.Character.Head
+ tool:Destroy()
+ player.Character.Humanoid.MaxHealth += 75
+ player.Character.Humanoid.Health += 75
+ hat.Name = "Armor_Cone"
+ hat.Anchored = false
+ hat.CanCollide = false
+ 
+ local info = Instance.new("Folder", hat)
+ info.Name = "HatInfo"
+ 
+ local info_Owner = Instance.new("ObjectValue", info)
+ info_Owner.Name = "Owner"
+ info_Owner.Value = player
+ 
+ local info_Rarity = Instance.new("StringValue", info)
+ info_Rarity.Name = "Rarity"
+ info_Rarity.Value = "Super rare"
+ 
+ local info_Name = Instance.new("StringValue", info)
+ info_Name.Name = "Name"
+ info_Name.Value = "Cone" 
+ 
+ local info_Group = Instance.new("StringValue", info)
+ info_Group.Name = "Group"
+ info_Group.Value = "None" 
+ 
+ local joint1 = Instance.new("Weld", hat)
+ joint1.C0 = CFrame.new(0, 1.4, 0)
+ joint1.Part0 = player.Character.Head
+ joint1.Part1 = hat
+  
+tye = player.Character.Humanoid.Died:Connect(function()
+local cone = hat:Clone()
+cone.Position = hat.Position
+cone.CanCollide = true
+cone.Parent = workspace
+cone.Anchored = false
+cone.Size = Vector3.new(1, 1, 1)
+game.Debris:AddItem(cone, 120)
+
+    cone.Touched:Connect(function(hit)
+      if hit.Parent:FindFirstChildOfClass("Humanoid") then
+        local humanoid = hit.Parent:FindFirstChildOfClass("Humanoid")
+        cone.CanTouch = false task.delay(0.2, function() cone.CanTouch = true end)
+        humanoid:TakeDamage(5)
+        humanoid.Sit = true
+      end
+    end)
+  end)
+  
+  hat.Destroying:Connect(function()
+    tye:Disconnect()
+    player.Character.Humanoid.MaxHealth = player.Character.Humanoid.MaxHealth - 75
+  end)
+end) 
