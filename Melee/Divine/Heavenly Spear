@@ -50,7 +50,7 @@ slash.CFrame = player.Character.HumanoidRootPart.CFrame
 slash.Anchored = true
 slash.CanCollide = false
 slash.Color = Color3.new(0.5, 0.5, 0.5)
-game:GetService(slash, 2)
+game.Debris:AddItem(slash, 2)
 
 local slashmesh = Instance.new("SpecialMesh", slash)
 slashmesh.MeshId = "rbxassetid://10322213741"
