@@ -1,0 +1,74 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "C4"
+tool.ToolTip = "Blow up houses and buildings with this tool"
+tool.GripPos = Vector3.new(0, 0, 0)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local c4 = Instance.new("SpecialMesh", handle)
+c4.Scale = Vector3.new(2, 2, 2)
+c4.MeshId = "rbxassetid://104516854"
+c4.TextureId = "rbxassetid://104516981"
+
+tool.Activated:Connect(function()
+  local bomb = handle:Clone()
+  bomb.CanCollide = true
+  bomb.CanTouch = true
+  bomb.Parent = workspace
+  tool:Destroy()
+  
+    for i = 1, 5 do
+  task.wait(1)
+local sound = Instance.new("Sound", bomb)
+sound.SoundId = "rbxassetid://5536265548"
+sound.Volume = 1.5
+sound.PlaybackSpeed = 1
+sound.Looped = false
+sound:Play()
+    end
+    
+    local shok = Instance.new("Part", workspace)
+    shok.Position = bomb.Position
+    shok.Anchored = true
+    shok.CanCollide = false
+    shok.Transparency = 1
+    game.Debris:AddItem(shok, 3.5)
+    
+    for _, part in next, Workspace:GetPartBoundsInRadius(bomb.Position, 40) do
+      if part.Anchored == false and not part.Parent:FindFirstChildOfClass ("Humanoid") and (part.Size.X + part.Size.Y + part.Size.Z) <= 65 then
+        part:BreakJoints()
+        part.Velocity = (bomb.Position - part.Position).Unit * -200
+      end
+    end
+    
+    local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(bomb.Position, 40) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+    for _, humanoid in next, humanoids do
+       humanoid:TakeDamage(100)
+       humanoid.RootPart.Velocity = (bomb.Position - humanoid.RootPart.Position).Unit * -250
+       humanoid:ChangeState("FallingDown")
+    end
+    
+    local sound = Instance.new("Sound", shok)
+    sound.SoundId = "rbxassetid://7818612635"
+    sound.Volume = 2
+    sound.PlaybackSpeed = 1
+    sound.Looped = false
+    sound:Play()
+    bomb:Destroy()
+    
+    local explosion = Instance.new("Explosion", workspace)
+    explosion.Position = bomb.Position
+    explosion.BlastRadius = 0
+    explosion.BlastPressure = 0
+    explosion.ExplosionType = Enum.ExplosionType.Craters
+    explosion.TimeScale = 0.3
+end)
