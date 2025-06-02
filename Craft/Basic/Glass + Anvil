@@ -1,0 +1,101 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Metal Glass"
+tool.ToolTip = "Maybe bulletproof glass?"
+tool.Grip = CFrame.Angles(math.rad(0), 0, math.rad(90))
+tool.GripPos = Vector3.new(1.7, 0, 0)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+handle.Material = "Glass"
+handle.Color = Color3.new(0.3, 0.3, 0.3)
+handle.Transparency = 0.3
+
+local breaking = 0
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+  local currentTime = tick()
+            if currentTime - lastPressTime >= 1.5 then
+                lastPressTime = currentTime 
+local Anim = Instance.new("Animation")
+Anim.AnimationId = "rbxassetid://243827693"
+local k = game:GetService("Players").LocalPlayer.Character.Humanoid:LoadAnimation(Anim)
+k:Play()
+k:AdjustSpeed(1)
+ task.wait(0.3)
+local foundHumanoids = {}
+local Usuario = game.Players.LocalPlayer
+for _, v in pairs(workspace:GetDescendants()) do
+    if v:IsA("Humanoid") and v.RootPart and v.RootPart.Parent ~= Usuario.Character then
+        local distance = (v.RootPart.Position - handle.Position).magnitude
+        if distance <= 9 then
+            table.insert(foundHumanoids, v)
+        end
+    end
+end
+
+for _, humanoid in pairs(foundHumanoids) do
+  humanoid:TakeDamage(30)
+  humanoid.RootPart.Velocity = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.LookVector * 80 + Vector3.new(0, 120, 0)
+  humanoid.Sit = true
+   breaking += 1
+   
+local sound = Instance.new("Sound", handle)
+sound.SoundId = "rbxassetid://8899349982"
+sound.Volume = 1.2
+sound.PlaybackSpeed = 1
+sound.Looped = false
+sound:Play()
+
+ if breaking >= 25 and not handle:FindFirstChild("Crackling") then
+   for _, side in next, Enum.NormalId:GetEnumItems() do
+     local decal = Instance.new("Decal", handle)
+     decal.Name = "Crackling"
+     decal.Texture = "rbxassetid://10228065900"
+     decal.Face = side
+   end
+ end
+
+     if breaking >= 50 then
+  handle:Destroy()
+
+    for i = 1, 6 do
+      local fragments = handle:Clone()
+      fragments.Parent = workspace
+      fragments.CanCollide = true
+      fragments.Size = Vector3.new(handle.Size.X / 3, handle.Size.Y / 3, handle.Size.Z / 3)
+      fragments.Shape = "Wedge"
+      fragments.Velocity += handle.Velocity + game.Players.LocalPlayer.Character.HumanoidRootPart.Velocity
+      game.Debris:AddItem(fragments, 10)
+    end
+  task.delay(2, function()
+tool:Destroy()
+  end)
+  
+local sound = Instance.new("Sound", game.Players.LocalPlayer.Character.HumanoidRootPart)
+sound.SoundId = "rbxassetid://6729922069"
+sound.Volume = 1.25
+sound.PlaybackSpeed = 1
+sound.Looped = false
+sound:Play()
+     end
+end
+            end
+end)
+
+tool.Equipped:Connect(function()
+local Anim = Instance.new("Animation")
+Anim.AnimationId = "rbxassetid://96065457"
+Anim.Name = "WarHammer_IdleAnimation"
+local k = game:GetService("Players").LocalPlayer.Character.Humanoid:LoadAnimation(Anim)
+k:Play()
+k:AdjustSpeed(1)
+end)
+
+tool.Unequipped:Connect(function()
+for _, track in ipairs(game.Players.LocalPlayer.Character.Humanoid:GetPlayingAnimationTracks()) do
+      if track.Animation.AnimationId == "rbxassetid://96065457" or track.Animation.Name == "WarHammer_IdleAnimation" then
+      track:Stop()
+      end
+end
+end)
