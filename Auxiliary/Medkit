@@ -1,0 +1,45 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Medkit" 
+tool.ToolTip = "Heals you and nearby entities"
+tool.GripPos = Vector3.new(0, 0.5, 0)
+local canheal = false
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local heal = Instance.new("SpecialMesh", handle)
+heal.Scale = Vector3.new(1.2, 1.2, 1.2)
+heal.TextureId = "rbxassetid://16252868042"
+heal.MeshId = "rbxassetid://45021509"
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+local currentTime = tick()
+            if currentTime - lastPressTime >= 10 then
+                lastPressTime = currentTime
+local foundHumanoids = {}
+Usuario = game.Players.LocalPlayer
+for _, v in pairs(workspace:GetDescendants()) do
+    if v:IsA("Humanoid") and v.RootPart then
+        local distance = (v.RootPart.Position - handle.Position).magnitude
+        if distance <= 12 then
+            table.insert(foundHumanoids, v)
+        end
+    end
+end
+
+for _, humanoid in pairs(foundHumanoids) do
+  if humanoid.Health < humanoid.MaxHealth then
+humanoid.Health += 50
+
+local sound = Instance.new("Sound", humanoid.RootPart)
+sound.SoundId = "rbxassetid://1655262564"
+sound.Volume = 2
+sound.PlaybackSpeed = 1
+sound.Looped = false
+sound:Play()
+game.Debris:AddItem(sound, 6)
+      end
+    end
+  end
+end)
