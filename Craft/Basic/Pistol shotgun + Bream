@@ -1,0 +1,80 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Pistol bream gun"
+tool.ToolTip = "Bream hail"
+tool.Grip = CFrame.Angles(math.rad(0), 0, 0)
+tool.GripPos = Vector3.new(0, 0, 0)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local pot = Instance.new("SpecialMesh", handle)
+pot.Scale = Vector3.new(2.5, 2.5, 2.5)
+pot.MeshId = "rbxassetid://2755598933"
+pot.TextureId = "rbxassetid://1725222355"
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+local currentTime = tick()
+     if currentTime - lastPressTime >= 5 then
+        lastPressTime = currentTime
+       local sound = Instance.new("Sound", handle)
+       sound.SoundId = "rbxassetid://642890855"
+       sound.Volume = 1
+       sound.PlaybackSpeed = 1
+       sound:Play()
+       game.Debris:AddItem(sound, 5)
+       
+       local light = Instance.new("PointLight", handle)
+       light.Brightness = 2
+       light.Range = 6
+       light.Color = Color3.new(1, 1, 0)
+       game.Debris:AddItem(light, 0.075)
+       
+       for i = 1, 6 do
+        coroutine.wrap(function()
+         local bullet = Instance.new("Part", Workspace)
+         bullet.Size = Vector3.new(0.8, 0.8, 0.8)
+         bullet.Color = Color3.new(0.25, 0.25, 0.25)
+         bullet.Name = "BulletPS"
+         bullet.Material = "SmoothPlastic"
+         bullet.CanCollide = true
+         bullet.Position = handle.Position + game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.LookVector * 1.5
+         game.Debris:AddItem(bullet, 10)
+         
+         local fisha = Instance.new("SpecialMesh", bullet)
+         fisha.MeshId = "rbxassetid://1725219705"
+         fisha.TextureId = "rbxassetid://1725222355"
+         fisha.Scale = Vector3.new(1, 1, 1)
+         
+         local conec1 = bullet.Touched:Connect(function(hit)
+local humanoid = hit.Parent:FindFirstChildOfClass("Humanoid")
+   if humanoid and humanoid.Parent ~= game.Players.LocalPlayer.Character then
+bullet.CanTouch = false
+ humanoid:TakeDamage(20)
+ humanoid.RootPart.Velocity = fish.CFrame.LookVector * 35
+ humanoid:ChangeState("FallingDown")
+ 
+local sound = Instance.new("Sound", bullet)
+sound.SoundId = "rbxassetid://8766809464"
+sound.Volume = 2
+sound.PlaybackSpeed = 1
+sound.Looped = false
+sound:Play()
+   end
+ end)
+
+task.spawn(function()
+   repeat wait() until bullet.Velocity.Magnitude <= 0
+   bullet.CanTouch = false
+ end)
+         
+         local bv = Instance.new("BodyVelocity", bullet)
+         bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+         local direction = game.Players.LocalPlayer:GetMouse().Hit.LookVector
+         local angle = math.rad(math.random(-10, 10))
+         bv.Velocity = Vector3.new(direction.X * math.cos(angle) - direction.Z * math.sin(angle), direction.Y, direction.X * math.sin(angle) + direction.Z * math.cos(angle)).Unit * 350
+         game.Debris:AddItem(bv, task.wait())
+         end)()
+       end
+    end
+end)
