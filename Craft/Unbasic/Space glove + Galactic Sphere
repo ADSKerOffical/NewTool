@@ -1,0 +1,107 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Super cosmic glove"
+tool.ToolTip = "The power of the universe is in my glove..."
+tool.Grip = CFrame.new(0.15, 0.35, -0.25) * CFrame.Angles(math.rad(90), math.rad(180), math.rad(-90))
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+handle.Size = Vector3.new(1.5, 1.5, 1.5)
+handle.Material = "Neon"
+handle.Color = Color3.new(1, 0, 0)
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://243183921"
+mesh.TextureId = "rbxassetid://899454068"
+mesh.Scale = Vector3.new(2 + (game.Players.LocalPlayer.Character:FindFirstChild("Right Arm") and game.Players.LocalPlayer.Character:FindFirstChild("Right Arm").Size.X / 1.5 or 0.3), 1.4, 2.3)
+
+local aura = Instance.new("ParticleEmitter", handle)
+aura.Texture = "rbxassetid://6718018773"
+aura.Color = ColorSequence.new(Color3.new(1, 1, 1), Color3.new(1, 1, 1), Color3.new(1, 1, 1))
+local rt = {
+  NumberSequenceKeypoint.new(0, 0),
+  NumberSequenceKeypoint.new(0.25, 0.25),
+  NumberSequenceKeypoint.new(0.75, 0.75),
+  NumberSequenceKeypoint.new(1, 1)
+}
+aura.Transparency = NumberSequence.new(rt)
+aura.Speed = NumberRange.new(0, 0)
+aura.Rotation = NumberRange.new(0, 0)
+aura.RotSpeed = NumberRange.new(200, 200)
+aura.Size = NumberSequence.new(1, 1)
+aura.Rate = 25
+aura.Drag = 0
+aura.TimeScale = 1
+aura.Brightness = 1
+aura.VelocitySpread = 0
+aura.Acceleration = Vector3.new(0, 0, 0)
+aura.Lifetime = NumberRange.new(0.5, 0.5)
+aura.ZOffset = -1
+aura.LockedToPart = true
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+local currentTime = tick()
+   if currentTime - lastPressTime >= 3 then
+      lastPressTime = currentTime
+local anim = Instance.new("Animation", game.Players.LocalPlayer.Character)
+anim.AnimationId = "rbxassetid://243827693"
+game.Debris:AddItem(anim, 10)
+local playAn = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(anim)
+playAn:Play()
+ task.wait(0.25)
+ 
+ for _, part in next, workspace:GetPartBoundsInRadius(handle.Position, 65) do
+   if part.Anchored == false and not part:IsDescendantOf(game.Players.LocalPlayer.Character) and not part.Parent:FindFirstChildOfClass("Humanoid") then
+     part.Velocity = (handle.Position - part.Position).Unit * -(((handle.Position - part.Position).Magnitude * 3) * 3)
+     if (part.Size.X + part.Size.Y + part.Size.Z) <= 25 then
+       part:BreakJoints()
+     end
+   end
+ end
+ 
+ local sound = Instance.new("Sound", handle)
+ sound.SoundId = "rbxassetid://2648563122"
+ sound.Volume = 1.5
+ sound.PlaybackSpeed = 1
+ sound:Play()
+ game.Debris:AddItem(sound, 9)
+ 
+ local explosion_root = Instance.new("Part", workspace)
+ explosion_root.Anchored = true
+ explosion_root.CanCollide = false
+ explosion_root.CanTouch = false
+ explosion_root.CanQuery = false
+ explosion_root.Position = handle.Position
+ explosion_root.Size = Vector3.new(10, 10, 10)
+ game.Debris:AddItem(explosion_root, 2)
+ 
+ local explosion_mesh = Instance.new("SpecialMesh", explosion_root)
+ explosion_mesh.MeshId = "rbxassetid://12869217128"
+ explosion_mesh.TextureId = mesh.TextureId
+ explosion_mesh.Scale = Vector3.new(1, 1, 1)
+ 
+ explosion_mesh:GetPropertyChangedSignal("Scale"):Connect(function()
+   explosion_root.Transparency = -(explosion_mesh.Scale.X / 70)
+ end)
+ 
+ local partTweenn2 = game:GetService("TweenService"):Create(explosion_mesh, TweenInfo.new(0.4, Enum.EasingStyle.Exponential), {
+      Scale = Vector3.new(-70, -70, -70)
+   })
+ partTweenn2:Play()
+ 
+ local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(handle.Position, 65) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+    for _, humanoid in next, humanoids do
+      humanoid:TakeDamage(3500 / (handle.Position - humanoid.RootPart.Position).Magnitude * 2)
+      humanoid.RootPart.Velocity = (handle.Position - humanoid.RootPart.Position).Unit * -600
+      humanoid:ChangeState((handle.Position - humanoid.RootPart.Position).Magnitude <= 8 and "FallingDown" or "Running")
+    end
+  end
+end)
