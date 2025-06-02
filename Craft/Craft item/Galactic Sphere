@@ -1,0 +1,37 @@
+local player = game.Players.LocalPlayer
+local tool = Instance.new("Tool", player.Backpack)
+tool.Name = "Galactic Sphere"
+tool.ToolTip = "The power of the universe is in my hand"
+tool.Grip = CFrame.new(0, -0.3, 0)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+handle.Shape = "Ball"
+handle.Size = Vector3.new(1, 1, 1)
+
+local blho = Instance.new("SpecialMesh", handle)
+blho.MeshId = "http://www.roblox.com/asset/?id=10691561431"
+blho.TextureId = "rbxassetid://899454068"
+blho.Scale = Vector3.new(0.5, 0.5, 0.5)
+
+local sound = Instance.new("Sound", handle)
+sound.SoundId = "rbxassetid://112878221721234"
+sound.Volume = 0.5
+sound.PlaybackSpeed = 1
+sound.Looped = true
+sound:Play()
+sound:Pause()
+
+task.spawn(function()
+  repeat task.wait()
+    tool.Grip = tool.Grip * CFrame.Angles(0, math.rad(5), 0)
+  until not handle or handle == nil or not tool
+end)
+
+tool.Equipped:Connect(function()
+  sound:Resume()
+end)
+
+tool.Unequipped:Connect(function()
+  sound:Pause()
+end)
