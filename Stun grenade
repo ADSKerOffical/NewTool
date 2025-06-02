@@ -1,0 +1,90 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Stun Grenade"
+tool.ToolTip = "Stuns enemies"
+tool.Grip = CFrame.Angles(math.rad(90), 0, 0)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+handle.Size = Vector3.new(1, 1, 1)
+
+local gren = Instance.new("SpecialMesh", handle)
+gren.MeshId = "rbxassetid://47679879"
+gren.TextureId = "rbxassetid://3135559918"
+gren.Scale = Vector3.new(1.5, 1.5, 1.5)
+gren.VertexColor = Vector3.new(0.5, 0.5, 0.5)
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+  local currentTime = tick()
+            if currentTime - lastPressTime >= 10 then
+                lastPressTime = currentTime 
+local sound = Instance.new("Sound", handle)
+sound.SoundId = "rbxassetid://5699659105"
+sound.Volume = 1
+sound.TimePosition = 1
+sound.PlaybackSpeed = 1
+sound.Looped = false
+sound:Play()
+
+local grenade = handle:Clone()
+grenade.Parent = workspace
+grenade.CanCollide = true
+grenade.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, -1)
+grenade.Velocity = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.LookVector * 100
+game.Debris:AddItem(grenade, 4.5)
+tool:Destroy()
+    task.wait(3)
+ grenade.Transparency = 1
+ grenade.CanCollide = false
+ grenade.Size = grenade.Size * 2
+ grenade.Anchored = true
+ 
+local sound = Instance.new("Sound", grenade)
+sound.SoundId = "rbxassetid://5246245227"
+sound.Volume = 2.5
+sound.PlaybackSpeed = 1
+sound.Looped = false
+sound:Play()
+  
+  local explo = Instance.new("Part", grenade)
+  explo.Size = Vector3.zero
+  explo.CanCollide = false
+  explo.Color = Color3.new(1, 1, 1)
+  explo.Position = grenade.Position
+  explo.Material = "Neon"
+  explo.Shape = "Ball"
+  
+  local thi = Instance.new("Sound")
+  thi.Name = "Tinnitus"
+  thi.SoundId = "rbxassetid://9069161602"
+  thi.RollOffMaxDistance = 3
+  thi.PlaybackSpeed = 1
+  thi.Volume = 0.3
+  
+  explo.Touched:Connect(function(hit)
+local humanoid = hit.Parent:FindFirstChildOfClass("Humanoid")
+      if humanoid then
+ local past = os.clock()
+  humanoid:ChangeState("FallingDown")
+  
+  task.spawn(function()
+    repeat task.wait()
+      if humanoid.Parent and humanoid.Parent:FindFirstChildOfClass("Tool") then
+        humanoid:UnequipTools()
+      end
+    until not humanoid or os.clock() - past >= 6
+  end)
+  
+thi.Parent = humanoid.Parent.Head or humanoid.Parent.PrimaryPart
+thi:Play()
+      end
+  end)
+  
+  local partTweenn2 = game:GetService("TweenService"):Create(explo, TweenInfo.new(0.1, Enum.EasingStyle.Linear), {
+        Transparency = 1,
+        Size = Vector3.new(50, 50, 50),
+        Color = Color3.new(0, 0, 0)
+    })
+    partTweenn2:Play()
+         end
+end)
