@@ -1,0 +1,35 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Tesseract"
+tool.ToolTip = "4D under my control"
+tool.Grip = CFrame.new(0, -0.3, 0)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+handle.Size = Vector3.new(0.9, 0.9, 0.9)
+handle.Color = Color3.new(0, 0, 1)
+handle.Material = "Neon"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://12655400064"
+mesh.Scale = Vector3.new(0.9, 0.9, 0.9)
+
+handle:GetPropertyChangedSignal("Size"):Connect(function()
+  mesh.Scale = handle.Size
+end)
+
+task.spawn(function()
+ repeat task.wait()
+  local partTweenn2 = game:GetService("TweenService"):Create(handle, TweenInfo.new(1, Enum.EasingStyle.Linear), {
+       Transparency = 1,
+       Size = Vector3.new(math.random(10, 99) / 100, math.random(10, 99) / 100, math.random(10, 99) / 100)
+    })
+  partTweenn2:Play()
+  partTweenn2.Completed:Wait()
+  local partTweenn2 = game:GetService("TweenService"):Create(handle, TweenInfo.new(1, Enum.EasingStyle.Linear), {
+       Transparency = 0,
+       Size = Vector3.new(math.random(10, 99) / 100, math.random(10, 99) / 100, math.random(10, 99) / 100)
+    })
+  partTweenn2:Play()
+  partTweenn2.Completed:Wait()
+ until not handle
+end)
