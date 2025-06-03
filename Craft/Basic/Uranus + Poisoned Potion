@@ -1,0 +1,88 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Uranus-238"
+tool.ToolTip = "A very highly radioactive chemical element, spread this radiation of your enemies"
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local mes = Instance.new("SpecialMesh", handle)
+mes.MeshId = "rbxassetid://153993888"
+mes.TextureId = "rbxassetid://153993976"
+mes.Scale = Vector3.new(1.5, 1.5, 1.5)
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+  local currentTime = tick()
+            if currentTime - lastPressTime >= 15 then
+                lastPressTime = currentTime 
+local bottle = handle:Clone()
+bottle.Parent = workspace
+bottle.Position = handle.Position + game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.LookVector * 3
+bottle.CanCollide = true
+game.Debris:AddItem(bottle, 16)
+local canspread = true
+task.wait(1.5)
+
+local smoke = Instance.new("Smoke", bottle)
+smoke.Color = Color3.new(0, 1, 0)
+smoke.Opacity = 0.5
+smoke.RiseVelocity = 20
+smoke.Size = 2.5
+
+for i = 1, 5 do
+  local radi = Instance.new("Part", workspace)
+  radi.Size = Vector3.new(1.2, 1.2, 1.2)
+  radi.Shape = "Ball"
+  radi.Color = Color3.new(0, 1, 0)
+  radi.Material = "SmoothPlastic"
+  radi.CanCollide = true
+  radi.Velocity = (bottle.Position - radi.Position).Unit * -math.random(75, 175)
+  radi.Position = bottle.Position + Vector3.new(math.random(-3, 3), 2, math.random(-3, 3))
+  game.Debris:AddItem(radi, 9)
+end
+bottle.Velocity = Vector3.new(0, 50, 0)
+
+local sound = Instance.new("Sound", bottle)
+sound.SoundId = "rbxassetid://4962360929"
+sound.Volume = 1
+sound.PlaybackSpeed = 1
+sound.Looped = false
+sound:Play()
+
+local loop = Instance.new("Sound", bottle)
+loop.SoundId = "rbxassetid://251407575"
+loop.Volume = 0.6
+loop.PlaybackSpeed = 1
+loop.Looped = true
+loop:Play()
+
+task.delay(10, function()
+ canspread = false
+ smoke.Enabled = false
+ partTweenn2 = game:GetService("TweenService"):Create(loop, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {
+        Volume = 0
+    })
+    partTweenn2:Play()
+end)
+
+task.spawn(function()
+ repeat task.wait(0.15)
+local foundHumanoids = {}
+Usuario = game.Players.LocalPlayer
+for _, v in pairs(workspace:GetDescendants()) do
+    if v:IsA("Humanoid") and v.RootPart and v.RootPart.Parent ~= Usuario.Character then
+        local distance = (v.RootPart.Position - bottle.Position).magnitude
+        if distance <= 60 then
+            table.insert(foundHumanoids, v)
+        end
+    end
+end
+
+for _, humanoid in pairs(foundHumanoids) do
+  humanoid:TakeDamage(3.5)
+  humanoid.RootPart.AssemblyLinearVelocity = Vector3.zero
+end
+ until bottle.Parent == nil or canspread == false
+end)
+            end
+end)
