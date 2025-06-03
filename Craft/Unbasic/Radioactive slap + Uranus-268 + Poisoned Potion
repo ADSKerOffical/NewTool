@@ -1,0 +1,88 @@
+local player = game.Players.LocalPlayer
+local tool = Instance.new("Tool", player:WaitForChild("Backpack"))
+tool.Name = "Nuclear Slap"
+tool.ToolTip = ""
+tool.RequiresHandle = false
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+  local currentTime = tick()
+            if currentTime - lastPressTime >= 1 then
+                lastPressTime = currentTime 
+local Anim = Instance.new("Animation")
+Anim.AnimationId = "rbxassetid://243827693"
+local k = player.Character.Humanoid:LoadAnimation(Anim)
+k:Play()
+k:AdjustSpeed(1)
+  task.wait(0.3)
+
+local pos = player.Character.HumanoidRootPart.CFrame
+for d = 0, 25 do task.wait(0.015)
+local ball = Instance.new("Part", workspace)
+ball.Size = Vector3.zero
+ball.Color = Color3.new(0, 1, 0)
+ball.Anchored = true
+ball.CanCollide = false
+ball.Material = "Neon"
+ball.Shape = "Ball"
+ball.CFrame = pos * CFrame.new(0, 0, -(10 * d))
+game.Debris:AddItem(ball, 3)
+
+local sound = Instance.new("Sound", ball)
+sound.SoundId = "rbxassetid://5835032207"
+sound.Volume = 1
+sound.PlaybackSpeed = 1
+sound:Play()
+game.Debris:AddItem(sound, 6)
+
+local partTweenn2 = game:GetService("TweenService"):Create(ball, TweenInfo.new(0.1, Enum.EasingStyle.Linear), {
+        Transparency = 1,
+        Size = Vector3.new(15 + d * 1.5, 15 + d * 1.5, 15 + d * 1.5),
+        Color = Color3.new(0, 0, 0)
+    })
+    partTweenn2:Play()
+
+local foundHumanoids = {}
+for _, v in pairs(workspace:GetDescendants()) do
+    if v:IsA("Humanoid") and v.RootPart and v.RootPart.Parent ~= player.Character then
+        local distance = (v.RootPart.Position - ball.Position).magnitude
+        if distance <= 16 then
+            table.insert(foundHumanoids, v)
+        end
+    end
+end
+
+for _, humanoid in pairs(foundHumanoids) do
+  humanoid:TakeDamage(50)
+ 
+if d % 3 == 0 then
+  task.spawn(function()
+for i = 1, 24 do
+  task.wait(0.15)
+humanoid:TakeDamage(10)
+  if i % 2 == 0 then
+local sound = Instance.new("Sound", humanoid.RootPart)
+sound.SoundId = "rbxassetid://5656490592"
+sound.Volume = 1
+sound.PlaybackSpeed = math.random(9, 11) / 10
+sound.Looped = false
+sound:Play()
+game.Debris:AddItem(sound, 7)
+  end
+end
+  end)
+end
+  
+  humanoid.Sit = true
+  humanoid.RootPart.Velocity = player.Character.HumanoidRootPart.CFrame.LookVector * 200 + Vector3.new(0, 85, 0)
+local sound = Instance.new("Sound", humanoid.RootPart)
+sound.SoundId = "rbxassetid://4766119678"
+sound.Volume = 1
+sound.PlaybackSpeed = 1
+sound.Looped = false
+sound:Play()
+game.Debris:AddItem(sound, 5)
+  end
+end
+            end
+end)
