@@ -1,0 +1,60 @@
+local player = game.Players.LocalPlayer
+local tool = Instance.new("Tool", player:WaitForChild("Backpack"))
+tool.Name = "Metal strike"
+tool.ToolTip = "Cyborg Strike"
+tool.RequiresHandle = false
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+  local currentTime = tick()
+            if currentTime - lastPressTime >= 0.75 then
+                lastPressTime = currentTime 
+local Anim = Instance.new("Animation")
+Anim.AnimationId = "rbxassetid://243827693"
+local k = player.Character.Humanoid:LoadAnimation(Anim)
+k:Play()
+k:AdjustSpeed(2)
+  task.wait(0.15)
+local sound = Instance.new("Sound", player.Character.HumanoidRootPart)
+sound.SoundId = "rbxassetid://5835032207"
+sound.Volume = 1
+sound.PlaybackSpeed = 1
+sound:Play()
+game.Debris:AddItem(sound, 6)
+  
+local foundHumanoids = {}
+for _, v in pairs(workspace:GetDescendants()) do
+    if v:IsA("Humanoid") and v.RootPart and v.RootPart.Parent ~= player.Character then
+        local distance = (v.RootPart.Position - player.Character.HumanoidRootPart.Position).magnitude
+        if distance <= 10 then
+            table.insert(foundHumanoids, v)
+        end
+    end
+end
+
+for _, humanoid in pairs(foundHumanoids) do
+  humanoid:TakeDamage(20 + (player.Character.Humanoid.FloorMaterial == Enum.Material.Air and 20 or 0))
+  humanoid.Sit = true
+  humanoid.RootPart.Velocity = player.Character.HumanoidRootPart.CFrame.LookVector * 200 + Vector3.new(0, (player.Character.Humanoid.FloorMaterial == Enum.Material.Air and -100 or 50), 0)
+local sound = Instance.new("Sound", humanoid.RootPart)
+sound.SoundId = "rbxassetid://4766119678"
+sound.Volume = 1
+sound.PlaybackSpeed = 1
+sound.Looped = false
+sound:Play()
+game.Debris:AddItem(sound, 6)
+end
+            end
+end)
+
+tool.Equipped:Connect(function()
+  for _, side in next, Enum.NormalId:GetEnumItems() do
+    task.spawn(function()
+      local decal = Instance.new("Decal", game.Players.LocalPlayer.Character:FindFirstChild("Right Arm"))
+      decal.Texture = "rbxassetid://16412011809"
+      decal.Face = side
+       tool.Unequipped:Wait()
+      decal:Destroy()
+    end)
+  end
+end)
