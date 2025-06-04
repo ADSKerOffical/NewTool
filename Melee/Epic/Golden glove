@@ -1,0 +1,62 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Golden glove"
+tool.ToolTip = "The ancestor of all gloves"
+tool.TextureId = "rbxassetid://243184138"
+tool.Grip = CFrame.new(-0.1, 0.75, -0.4) * CFrame.Angles(math.rad(-90), math.rad(0), math.rad(90))
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+handle.Size = Vector3.new(1.2, 1.2, 1.2)
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://243183921"
+mesh.TextureId = "rbxassetid://243183937"
+mesh.Scale = Vector3.new(2.5, 1.5, 2.5)
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+  local currentTime = tick()
+       if currentTime - lastPressTime >= 1 then
+           lastPressTime = currentTime 
+local Anim = Instance.new("Animation")
+Anim.AnimationId = "rbxassetid://243827693"
+local k = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(Anim)
+k:Play()
+k:AdjustSpeed(1)
+  task.wait(0.3)
+  
+local sound = Instance.new("Sound", handle)
+sound.SoundId = "rbxassetid://101164100"
+sound.Volume = 1
+sound.PlaybackSpeed = 0.875
+sound:Play()
+game.Debris:AddItem(sound, 5)
+  
+ local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(handle.Position, 12) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+     for _, humanoid in next, humanoids do
+       humanoid:TakeDamage(40)
+       
+       local sound = Instance.new("Sound", humanoid.RootPart)
+       sound.SoundId = "rbxassetid://90641846" 
+       sound.Volume = 1.5
+       sound.PlaybackSpeed = 1
+       sound:Play()
+       game.Debris:AddItem(sound, 5)
+       
+       if humanoid.RootPart.CFrame.Y - 1 > game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.Y or humanoid.RootPart.CFrame.Y + 1 < game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.Y then
+          humanoid.RootPart.Velocity = (handle.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Unit * -175
+          humanoid.Sit = true
+         else
+          humanoid.RootPart.Velocity = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.LookVector * 175 + Vector3.new(0, 35, 0)
+       end
+     end
+   end
+end)
