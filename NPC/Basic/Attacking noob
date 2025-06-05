@@ -1,0 +1,67 @@
+local npc = game:GetObjects("rbxassetid://4446576906")[1]
+npc.Parent = workspace
+npc:SetAttribute("NPCGroup", "Noobs")
+npc:MoveTo(game.Players.LocalPlayer.Character.HumanoidRootPart.Position)
+
+local function followPlayer()
+    npc.Humanoid:MoveTo(game.Players.LocalPlayer.Character.PrimaryPart.Position)
+end
+
+local function damage(numb, radius)
+  local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(npc.HumanoidRootPart.Position or npc.Humanoid.RootPart.Position, radius) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(npc) and npc.Humanoid.Health > 0 and part.Parent:FindFirstChildOfClass("Humanoid").Health > 0 and not (part.Parent:GetAttribute("NPCGroup") and part.Parent:GetAttribute("NPCGroup") == npc:GetAttribute("NPCGroup")) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+  for _, humanoid in next, humanoids do
+    humanoid:TakeDamage(numb)
+    humanoid.RootPart.Velocity = npc.HumanoidRootPart.CFrame.LookVector * 75 + Vector3.new(0, 25, 0)
+  end
+end
+
+local function checkPlayerDistance()
+    local humanoid = nil
+ for _, part in next, Workspace:GetPartBoundsInRadius(npc.HumanoidRootPart.Position or npc.PrimaryPart.Position or npc.Humanoid.RootPart.Position, 100) do
+   if part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(npc) and npc.Humanoid.Health > 0 and part.Parent:FindFirstChildOfClass("Humanoid").Health > 0 and not (part.Parent:GetAttribute("NPCGroup") and part.Parent:GetAttribute("NPCGroup") == npc:GetAttribute("NPCGroup")) then
+     humanoid = part.Parent:FindFirstChildOfClass("Humanoid")
+     break
+   end
+ end
+ 
+    if humanoid then
+       npc.Humanoid:MoveTo(humanoid.Parent.PrimaryPart.Position or humanoid.RootPart.Position)
+    end
+end
+
+task.spawn(function()
+  while true and task.wait() do
+     checkPlayerDistance()
+  end
+end)
+
+npc.Humanoid.Seated:Connect(function()
+  task.wait(5)
+  if npc.Humanoid.Sit == true then
+    npc.Humanoid.Sit = false
+    npc.Humanoid.Jump = true
+  end
+end)
+
+--[[
+  walk: 180426354
+  idle: 180435571
+  jump: 125750702
+  fall: 180436148
+  climb: 180436334
+  tool: 182393478
+]]
+
+task.spawn(function() while task.wait(1) do damage(10, 5) end end)
+
+npc.Humanoid.Died:Connect(function()
+  game.Debris:AddItem(npc, 5)
+end)
