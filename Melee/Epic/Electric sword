@@ -30,6 +30,7 @@ sound.Volume = 1
 sound.PlaybackSpeed = 1
 sound.Looped = false
 sound:Play()
+game.Debris:AddItem(sound, 5)
   task.wait(0.2)
 
 if currentTime - lastShoot >= 7.5 then
@@ -97,6 +98,7 @@ for _, humanoid in pairs(humanoids) do
      sound.PlaybackSpeed = 1
      sound.Looped = false
      sound:Play()
+     game.Debris:AddItem(sound, 6)
 
     task.spawn(function()
       for i = 1, 5 do task.wait(0.5)
@@ -107,11 +109,28 @@ for _, humanoid in pairs(humanoids) do
   end
   
  local sound = Instance.new("Sound", humanoid.RootPart)
-sound.SoundId = "rbxassetid://8060079174"
-sound.Volume = 2
-sound.PlaybackSpeed = 1
-sound.Looped = false
-sound:Play()
+ sound.SoundId = "rbxassetid://8060079174"
+ sound.Volume = 2
+ sound.PlaybackSpeed = 1
+ sound.Looped = false
+ sound:Play()
+ game.Debris:AddItem(sound, 8)
 end
             end
+end)
+
+tool.Equipped:Connect(function()
+  if not handle:FindFirstChild("ElectricSwordEquipSound") then
+    local sound = Instance.new("Sound", handle)
+    sound.SoundId = "rbxassetid://10756118"
+    sound.Volume = 1.25
+    sound.Name = "ElectricSwordEquipSound"
+    sound.PlaybackSpeed = 1
+    sound:Play()
+    game.Debris:AddItem(sound, 10)
+
+    sound.Ended:Connect(function()
+      sound:Destroy()
+    end)
+  end
 end)
