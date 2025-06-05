@@ -73,18 +73,65 @@ Button.TextScaled = true
 Button.Text = "Hail of cuts"
 Button.Parent = ScreenGui
 
+local RGBColor = Instance.new("UIGradient", Button)
+RGBColor.Color = ColorSequence.new(Color3.new(1, 0, 0), Color3.new(1, 0.5, 0), Color3.new(1, 1, 0), Color3.new(0, 1, 0), Color3.new(0, 1, 1), Color3.new(0, 0, 1), Color3.new(1, 0, 1))
+
 local lastPressTime = 0
 Button.MouseButton1Click:Connect(function()
   local currentTime = tick()
     if currentTime - lastPressTime >= 10 then
         lastPressTime = currentTime
 sword:SetAttribute("CanAttack", false)
-     task.delay(1.5, function()
+local defense = Instance.new("ForceField", sword.Parent or game.Players.LocalPlayer.Character)
+defense.Visible = false
+game.Debris:AddItem(defense, 2)
+     task.delay(2, function()
        sword:SetAttribute("CanAttack", true)
      end)
     
 local lastTime = os.clock()
-     for i = 1, 30 do task.wait(0.05)
+game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 75
+
+for _, part in next, game.Players.LocalPlayer.Character:GetDescendants() do
+  if part:IsA("BasePart") and part.Transparency < 0.5 then
+    local saved = part.CurrentPhysicalProperties
+    part.CustomPhysicalProperties = PhysicalProperties.new(0.05, 1, 1)
+    part.Transparency = 1 task.delay(2, function() part.Transparency = 0 part.CustomPhysicalProperties = saved end)
+  end
+end
+
+local BF = Instance.new("BodyForce", game.Players.LocalPlayer.Character.HumanoidRootPart)
+BF.Force = Vector3.new(0, game.Players.LocalPlayer.Character.HumanoidRootPart:GetMass() * workspace.Gravity * (1 - -2.5) * 0.2, 0)
+game.Debris:AddItem(BF, 2)
+
+local circle = Instance.new("Part", Workspace)
+circle:SetAttribute("Done", false)
+circle.Size = Vector3.new(25, 25, 25)
+circle.Anchored = false
+circle.Massless = true
+circle.Color = Color3.new(1, 1, 1)
+circle.CanCollide = false
+circle.Transparency = 0.25
+circle.Material = "SmoothPlastic"
+game.Debris:AddItem(circle, 20)
+
+local circle_mesh = Instance.new("SpecialMesh", circle)
+circle_mesh.MeshId = "rbxassetid://12869217128"
+circle_mesh.Scale = Vector3.new(-20, -20, -20)
+
+local circle_weld = Instance.new("Weld", circle)
+circle_weld.Part0 = circle
+circle_weld.Part1 = game.Players.LocalPlayer.Character.HumanoidRootPart
+circle_weld.C0 = CFrame.Angles(math.rad(math.random(-360, 360)), math.rad(math.random(-360, 360)), math.rad(math.random(-360, 360)))
+
+task.spawn(function()
+  repeat task.wait() 
+    circle_weld.C0 = CFrame.Angles(math.rad(math.random(-360, 360)), math.rad(math.random(-360, 360)), math.rad(math.random(-360, 360)))
+  until circle:GetAttribute("Done") == true
+  circle:Destroy()
+end)
+
+     for i = 1, 60 do task.wait(0.025)
        coroutine.wrap(function()
          local slash = Instance.new("Part", Workspace)
          slash.Color = Color3.new(1, 1, 1)
@@ -96,11 +143,13 @@ local lastTime = os.clock()
          slash.Material = "SmoothPlastic"
          game.Debris:AddItem(slash, 1.2)
          
+         if i % 2 == 0 then
          local slash_sound = Instance.new("Sound", slash)
          slash_sound.SoundId = "rbxassetid://8971633315"
          slash_sound.Volume = 1.5
          slash_sound.PlaybackSpeed = math.random(12, 15) / 10
          slash_sound:Play()
+         end
     
          local slash_mesh = Instance.new("SpecialMesh", slash)
          slash_mesh.MeshId = "rbxassetid://4572036304"
@@ -117,10 +166,15 @@ for _, part in next, Workspace:GetPartBoundsInRadius(handle.Position, 45) do
 
     for _, humanoid in next, humanoids do
       if i % 2 == 0 then
-        humanoid:TakeDamage(100)
+        humanoid:TakeDamage(75)
+        
+        if humanoid.Health > 0 and (humanoid.RootPart.Position - (handle.Position or game.Players.LocalPlayer.Character.HumanoidRootPart.Position)).Magnitude <= 15 then
+          humanoid:TakeDamage(200)
+        end
+        
         if humanoid.Health <= 0 and humanoid:GetStateEnabled("Dead") and humanoid:GetAttribute("WaitForDead") == nil then
          humanoid:SetAttribute("WaitForDead", true)
-         
+        
          local sound = Instance.new("Sound", humanoid.RootPart)
          sound.SoundId = "rbxassetid://264486467"
          sound.Volume = 0.5
@@ -163,6 +217,9 @@ for _, part in next, Workspace:GetPartBoundsInRadius(handle.Position, 45) do
        end)()
      end
      
+     game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = game.StarterPlayer.CharacterWalkSpeed or 16
+     game.Players.LocalPlayer.Character.HumanoidRootPart.Velocity += game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.LookVector * (game.Players.LocalPlayer.Character.Humanoid.FloorMaterial ~= Enum.Material.Air and 250 or 100)
+     circle:SetAttribute("Done", true)
    end
 end)
 
@@ -265,6 +322,10 @@ local previousHealth = game.Players.LocalPlayer.Character.Humanoid.MaxHealth
              cope.HumanoidRootPart.CFrame *= CFrame.new(math.random(-5, 5), 0, math.random(-5, 5))
              game.Debris:AddItem(cope, 0.025)
              
+             cope.Humanoid.DisplayName = "" 
+             cope.Humanoid.Name = ""
+             cope.Name = ""
+   
              local sound = Instance.new("Sound", cope.HumanoidRootPart)
              sound.SoundId = "rbxassetid://3077287610"
              sound.Volume = 1
@@ -277,4 +338,102 @@ local previousHealth = game.Players.LocalPlayer.Character.Humanoid.MaxHealth
        end
      end
      previousHealth = newHealth
+ end)
+ 
+ local Button2 = Button:Clone() 
+ Button2.Text = "World slash"
+ Button2.Position = UDim2.new(0.825, 0, 0.6, 0)
+ Button2.Parent = Button.Parent
+ Button2:FindFirstChildOfClass("UIGradient").Color = ColorSequence.new(Color3.new(1, 0, 0), Color3.new(1, 1, 1), Color3.new(0, 0, 1))
+ 
+ local lastPressTime2 = 0
+ Button2.MouseButton1Click:Connect(function()
+   local currentTime = tick()
+     if currentTime - lastPressTime2 >= 10 then
+        lastPressTime2 = currentTime
+local slashAnim = Instance.new("Animation", game.Players.LocalPlayer.Character)
+slashAnim.AnimationId = "rbxassetid://218504594"
+local DoSA = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(slashAnim)
+DoSA:Play()
+DoSA:AdjustSpeed(2.3)
+  task.wait(0.15)
+local sound = Instance.new("Sound", handle)
+sound.SoundId = "rbxassetid://45885030"
+sound.Volume = 1.5
+sound.PlaybackSpeed = 1
+sound:Play()
+game.Debris:AddItem(sound, 4)
+
+local sound2 = sound:Clone()
+sound2.Parent = handle
+sound2.SoundId = "rbxassetid://32656754"
+sound2:Play()
+game.Debris:AddItem(sound2, 6)
+
+local slash = Instance.new("Part", Workspace)
+slash.Color = Color3.new(1, 1, 1)
+slash.Material = "SmoothPlastic"
+slash.CanCollide = false
+slash.Transparency = 0.35
+slash.Anchored = true
+slash.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, -0.3, -4)
+slash.CustomPhysicalProperties = PhysicalProperties.new(100, 100, 0)
+slash.Size = Vector3.new(50, 8, 8)
+game.Debris:AddItem(slash, 10)
+
+local tween = game:GetService("TweenService"):Create(slash, TweenInfo.new(10, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, false, 0), {
+     CFrame = slash.CFrame * CFrame.new(0, 0, -10000)
+  })
+tween:Play()
+
+task.spawn(function()
+  repeat task.wait()
+    local humanoids = {}
+for _, part in next, Workspace:GetPartBoundsInRadius(slash.Position, 20) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) and part.Parent:GetAttribute("NotNeedHit") == nil then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+   for _, humanoid in next, humanoids do
+     if (humanoid.RootPart.Position - handle.Position).Magnitude <= 10 then
+      humanoid:TakeDamage(3500)
+      humanoid:ChangeState("FallingDown")
+      humanoid.RootPart.Velocity = (handle.Position - humanoid.RootPart.Position).Unit * -200
+      humanoid.Parent:SetAttribute("NotNeedHit", true)
+      task.delay(1.5, function() if humanoid then humanoid.Parent:SetAttribute("NotNeedHit", nil) end end)
+       else
+      humanoid:TakeDamage(1250)
+      humanoid.RootPart.Velocity = slash.CFrame.LookVector * 200
+      humanoid.Parent:SetAttribute("NotNeedHit", true) 
+      task.delay(1.5, function() if humanoid then humanoid.Parent:SetAttribute("NotNeedHit", nil) end end)
+     end
+   end
+   
+   for _, part in next, Workspace:GetPartBoundsInRadius(slash.Position, 20) do
+     if part.Anchored == false and not part:IsDescendantOf(game.Players.LocalPlayer.Character) and not part.Parent:FindFirstChildOfClass("Humanoid") and (part.Size.X + part.Size.Y + part.Size.Z) <= 50 then
+       part:BreakJoints()
+       part.Velocity = slash.CFrame.LookVector * 250
+       part.AssemblyAngularVelocity += Vector3.new(math.random(0, 50), math.random(0, 50), math.random(0, 50))
+     end
+   end
+  until not slash
+end)
+
+local slash_mesh = Instance.new("SpecialMesh", slash)
+slash_mesh.MeshId = "rbxassetid://4572036304" 
+slash_mesh.Scale = Vector3.new(3, 3, 2)
+
+local col = Instance.new("ColorCorrectionEffect", game.Lighting)
+col.TintColor = Color3.new(1, 1, 1)
+col.Saturation = 10
+game.Debris:AddItem(col, 10)
+
+local tween = game:GetService("TweenService"):Create(col, TweenInfo.new(0.7, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, false, 0), {
+     Saturation = 0
+  })
+tween:Play()
+    end
  end)
