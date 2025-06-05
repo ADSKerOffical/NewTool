@@ -1,0 +1,21 @@
+local npc = game:GetObjects("rbxassetid://2807468453")[1]
+npc.Parent = workspace
+npc:PivotTo(game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, -3))
+
+npc.Humanoid.MaxHealth = 65000
+npc.Humanoid.Health = npc.Humanoid.MaxHealth
+npc.Humanoid.BreakJointsOnDeath = false
+
+npc.Humanoid:SetStateEnabled("Seated", false)
+npc.Humanoid:SetStateEnabled("PlatformStanding", false)
+npc.Humanoid:SetStateEnabled("FallingDown", false)
+
+npc.Humanoid.RootPart:GetPropertyChangedSignal("Velocity"):Connect(function()
+  if npc.Humanoid.RootPart.Velocity.Magnitude >= 60 then
+    npc.Humanoid.RootPart.Velocity = Vector3.zero
+  end
+end)
+
+npc.Humanoid.Died:Connect(function()
+  game.Debris:AddItem(npc, 5)
+end)
