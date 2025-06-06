@@ -1,0 +1,205 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Mixed Pistol"
+tool.ToolTip = "It is a mixture of many weapons"
+tool.GripPos = Vector3.new(0, -0.2, 0.4)
+tool.CanBeDropped = false
+game.Players.LocalPlayer.SimulationRadius = math.huge
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://1428510244"
+mesh.TextureId = "rbxassetid://1428510259"
+mesh.Scale = Vector3.new(1, 1, 1)
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+local currentTime = tick()
+   if currentTime - lastPressTime >= 0.7 then
+      lastPressTime = currentTime
+    coroutine.wrap(function()
+local shoot = Instance.new("Part", workspace)
+shoot.Size = Vector3.new(1.4, 1.4, 1.4)
+shoot.Shape = "Ball"
+shoot.Material = "Neon"
+shoot.CanCollide = false
+shoot.Color = Color3.new(0, 1, 1)
+shoot.CFrame = handle.CFrame * CFrame.new(0, 0, -0.9) * CFrame.new(shoot.Position, game.Players.LocalPlayer:GetMouse().Hit.LookVector)
+game.Debris:AddItem(shoot, 13)
+
+local particles = Instance.new("Smoke", shoot)
+particles.Opacity = 0.5
+particles.Size = 3
+particles.RiseVelocity = 4
+particles.Color = shoot.Color
+
+local sound = Instance.new("Sound", handle)
+sound.SoundId = "rbxassetid://131179973"
+sound.Volume = 1
+sound.PlaybackSpeed = 1
+sound:Play()
+game.Debris:AddItem(sound, 5)
+
+local ted = true
+shoot.Touched:Connect(function(hit)
+ if not hit:IsDescendantOf(game.Players.LocalPlayer.Character) then
+   if ted == false then return end ted = false
+   local shapes = {"Ball", "Block", "Cylinder"}
+   local explosion = Instance.new("Part", workspace)
+   explosion.Position = shoot.Position
+   explosion.Color = shoot.Color
+   explosion.Size = Vector3.zero
+   explosion.Anchored = true
+   explosion.Shape = shapes[math.random(1, #shapes)]
+   explosion.CanCollide = false
+   explosion.CanTouch = false
+   explosion.CanQuery = falss
+   explosion.Material = "Neon"
+   game.Debris:AddItem(explosion, 5)
+   
+   for i = 1, 6 do
+     local mer = Instance.new("Part", workspace)
+     mer.Size = Vector3.new(3, 3, 3)
+     mer.Color = Color3.new(0, 1, 1)
+     mer.Position = explosion.Position + Vector3.new(math.random(-9, 9), 4, math.random(-9, 9))
+     mer.Velocity = (explosion.Position - mer.Position).Unit * math.random(-175, -80)
+     mer.AssemblyAngularVelocity += Vector3.new(math.random(1, 10), math.random(1, 10), math.random(1, 10))
+     mer.CanCollide = false
+     mer.Material = "Neon"
+     game.Debris:AddItem(mer, 5)
+     
+     mer.Touched:Connect(function(part)
+       if part and not part:IsDescendantOf(game.Players.LocalPlayer.Character) and part.Parent:FindFirstChildOfClass("Humanoid") then
+         part.Parent:FindFirstChildOfClass("Humanoid"):TakeDamage(10)
+       end
+     end)
+   end
+   
+   local sound = Instance.new("Sound", explosion)
+   sound.SoundId = "rbxassetid://70399740432111"
+   sound.Volume = 5
+   sound.PlaybackSpeed = 1
+   sound:Play()
+   game.Debris:AddItem(sound, 6)
+   
+   local humanoids = {}
+for _, part in next, Workspace:GetPartBoundsInRadius(explosion.Position, 30) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) and part.Parent:FindFirstChildOfClass("Humanoid").Health > 0 then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+for _, humanoid in next, humanoids do
+  humanoid:TakeDamage(70 + math.random(1, 30))
+  humanoid.RootPart.Velocity += (explosion.Position - humanoid.RootPart.Position).Unit * -150
+  humanoid.RootPart.AssemblyLinearVelocity += Vector3.new(0, 15, 0)
+   if humanoid.Health <= 0 and humanoid:GetStateEnabled("Dead") and game.Players.LocalPlayer.Character.Humanoid.Health < game.Players.LocalPlayer.Character.Humanoid.MaxHealth then
+     local healthball = Instance.new("Part", workspace)
+     healthball.Position = humanoid.RootPart.Position
+     healthball.CanCollide = false
+     healthball.Color = Color3.new(0, 1, 0)
+     healthball.Size = Vector3.new(1.5, 1.5, 1.5)
+     healthball.Material = "Neon"
+     game.Debris:AddItem(healthball, 60)
+     
+     healthball.Touched:Connect(function(part)
+       if part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+         game.Players.LocalPlayer.Character.Humanoid.Health += 40 + humanoid.MaxHealth / 10
+         
+         local sound = Instance.new("Sound", game.Players.LocalPlayer.Character.HumanoidRootPart)
+         sound.SoundId = "rbxassetid://6373199071"
+         sound.Volume = 1
+         sound.PlaybackSpeed = 1
+         sound:Play()
+         game.Debris:AddItem(sound, 3)
+         
+         healthball:Destroy()
+       end
+     end)
+     
+     local bv = Instance.new("BodyVelocity", healthball)
+     bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+     task.spawn(function()
+       repeat task.wait()
+         bv.Velocity = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - healthball.Position).Unit * 175
+       until not healthball or not game.Players.LocalPlayer.Character.HumanoidRootPart or not bv
+     end)
+   end
+end 
+   
+   local partTweenn2 = game:GetService("TweenService"):Create(explosion, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, false, 0), {
+       Size = Vector3.new(30, 30, 30),
+       Color = Color3.new(1, 1, 1),
+       Transparency = 1
+    })
+    partTweenn2:Play()
+   shoot:Destroy()
+  end
+end)
+
+local velocity = Instance.new("BodyVelocity", shoot)
+velocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+velocity.Velocity = game.Players.LocalPlayer:GetMouse().Hit.LookVector * 300
+
+  task.delay(1, function()
+    if shoot ~= nil and velocity ~= nil then
+      local humanoid = nil
+ for _, part in next, Workspace:GetPartBoundsInRadius(shoot.Position, 125) do
+   if not part:IsDescendantOf(game.Players.LocalPlayer.Character) and part.Parent:FindFirstChildOfClass("Humanoid") then
+     humanoid = part.Parent:FindFirstChildOfClass("Humanoid")
+     break
+   end
+ end
+ 
+      if humanoid then
+        velocity.Velocity = (shoot.Position - humanoid.RootPart.Position).Unit * -600
+         else
+        velocity.Velocity = velocity.Velocity * 2
+        
+        local sonic = Instance.new("Part", workspace)
+        sonic.CanCollide = false
+        sonic.CanTouch = false
+        sonic.CanQuery = false
+        sonic.Anchored = true
+        sonic.Color = shoot.Color
+        sonic.Material = shoot.Material
+        sonic.Shape = shoot.Shape
+        sonic.CFrame = shoot.CFrame
+        game.Debris:AddItem(sonic, 3)
+        
+        local sonic_mesh = Instance.new("SpecialMesh", sonic)
+        sonic_mesh.MeshId = "rbxassetid://10905570617"
+        sonic_mesh.Scale = Vector3.zero
+        
+        sonic:GetPropertyChangedSignal("Size"):Connect(function()
+          sonic_mesh.Scale = sonic.Size
+        end)
+        
+        local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(sonic.Position, 40) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+    for _, humanoid in next, humanoids do
+       humanoid:TakeDamage(65)
+       humanoid:ChangeState("FallingDown")
+    end
+        
+        local tween = game:GetService("TweenService"):Create(sonic, TweenInfo.new(0.7, Enum.EasingStyle.Exponential, Enum.EasingDirection.InOut, 0, false, 0), {
+             Transparency = 1,
+             Size = Vector3.new(60, 60, 60)
+          })
+        tween:Play()
+      end
+    end
+  end)
+     end)()
+   end
+end)
