@@ -1,0 +1,426 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Staff of Elements"
+tool:SetAttribute("Cooldown", 15)
+tool:SetAttribute("Element", 1)
+tool.ToolTip = "Use the 6 elements namely fire water earth air crystal cold against your enemies"
+tool.GripPos = Vector3.new(0, -1, 0)
+
+local handle = Instance.new("Part", tool)
+handle.Size = Vector3.new(0.1, 0.1, 0.1)
+handle.Name = "Handle"
+
+local staff = Instance.new("SpecialMesh", handle)
+staff.MeshId = "rbxassetid://34795781"
+staff.TextureId = "rbxassetid://157345185"
+staff.Scale = Vector3.new(2, 2, 2)
+
+game.Players.LocalPlayer.Character.Humanoid.MaxHealth += 5000
+game.Players.LocalPlayer.Character.Humanoid.Health += 5000
+
+local aura = Instance.new("ParticleEmitter", game.Players.LocalPlayer.Character.HumanoidRootPart)
+aura.Enabled = false
+aura.Texture = "rbxassetid://26356341"
+aura.Color = ColorSequence.new(Color3.new(0, 1, 0.33), Color3.new(0, 0, 1), Color3.new(1, 1, 0.3))
+local rt = {
+  NumberSequenceKeypoint.new(0, 0),
+  NumberSequenceKeypoint.new(0, 0.8),
+  NumberSequenceKeypoint.new(0, 0),
+  NumberSequenceKeypoint.new(1, 1)
+}
+aura.Transparency = NumberSequence.new(rt)
+aura.Speed = NumberRange.new(0, 0)
+aura.Rotation = NumberRange.new(-180, 180)
+aura.RotSpeed = NumberRange.new(200, 200)
+aura.Size = NumberSequence.new(10, 10)
+aura.Rate = 5
+aura.Drag = 0
+aura.TimeScale = 1
+aura.Brightness = 1
+aura.VelocitySpread = 0
+aura.Acceleration = Vector3.new(0, 0, 0)
+aura.Lifetime = NumberRange.new(0.5, 0.5)
+aura.ZOffset = -1
+aura.LockedToPart = true
+
+local ScreenGui = Instance.new("ScreenGui", game.Players.LocalPlayer.PlayerGui)
+ScreenGui.Enabled = false
+
+local Button = Instance.new("TextButton")
+Button.Name = "Button"
+Button.Size = UDim2.new(0.07, 0.07, 0.07, 7)
+Button.Position = UDim2.new(0.86, 0, 0.4, 0)
+Button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+Button.TextScaled = true
+Button.Text = "Select an element"
+Button.Parent = ScreenGui
+
+local PurColor = Instance.new("UIGradient", Button)
+PurColor.Color = ColorSequence.new(Color3.new(1, 0, 0), Color3.new(0, 0, 0))
+
+tool:GetAttributeChangedSignal("Element"):Connect(function()
+  if tool:GetAttribute("Element") == 1 then
+     PurColor.Color = ColorSequence.new(Color3.new(1, 0, 0), Color3.new(0, 0, 0))
+       repeat task.wait(0.25)
+        if tool.Parent == game.Players.LocalPlayer.Character then
+local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(handle.Position, 35) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+         for _, humanoid in next, humanoids do
+            humanoid:TakeDamage(2.5)
+            
+            local ball = Instance.new("Part", Workspace)
+            ball.CanTouch = false
+            ball.CanCollide = false
+            ball.CanQuery = false
+            ball.Size = Vector3.zero
+            ball.Shape = "Ball"
+            ball.Position = humanoid.RootPart.Position
+            ball.Material = "CrackedLava"
+            ball.Color = Color3.new(1, 0, 0)
+            ball.Anchored = true
+            game.Debris:AddItem(ball, 0.7)
+            
+            local tween = game:GetService("TweenService"):Create(ball, TweenInfo.new(0.25, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, 0, false, 0), {
+                Size = Vector3.new(7, 7, 7),
+                Color = Color3.new(0, 0, 0),
+                Transparency = 1
+              })
+            tween:Play()
+           end
+         end
+       until tool:GetAttribute("Element") ~= 1
+   elseif tool:GetAttribute("Element") == 2 then
+     PurColor.Color = ColorSequence.new(Color3.new(0, 1, 1), Color3.new(0, 0, 0))
+   elseif tool:GetAttribute("Element") == 3 then
+     PurColor.Color = ColorSequence.new(Color3.new(0, 1, 0), Color3.new(0, 0, 0))
+   elseif tool:GetAttribute("Element") == 4 then
+     PurColor.Color = ColorSequence.new(Color3.new(0.5, 0.5, 0.5), Color3.new(0, 0, 0))
+   elseif tool:GetAttribute("Element") == 5 then
+     PurColor.Color = ColorSequence.new(Color3.new(1, 0, 1), Color3.new(0, 0, 0))
+   elseif tool:GetAttribute("Element") == 6 then
+     PurColor.Color = ColorSequence.new(Color3.new(0, 0.75, 0.75), Color3.new(0, 0, 0))
+  end
+  
+  local Eff = Button:Clone()
+  Eff.Text = ""
+  Eff.Parent = Button.Parent
+  game.Debris:AddItem(Eff, 0.575)
+  
+  local partTweenn2 = game:GetService("TweenService"):Create(Eff, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {
+      Size = UDim2.new(0.1, 0.1, 0.1, 10),
+      Position = UDim2.new(0.85, 0, 0.385, 0),
+      BackgroundTransparency = 1
+    })
+  partTweenn2:Play()
+end)
+
+Button.MouseButton1Click:Connect(function()
+   tool:SetAttribute("Element", tool:GetAttribute("Element") + 1)
+     if tool:GetAttribute("Element") > 6 then
+  tool:SetAttribute("Element", 1)
+     end
+end)
+
+tool.Equipped:Connect(function()
+ ScreenGui.Enabled = true
+ aura.Enabled = true
+end)
+
+tool.Unequipped:Connect(function()
+ ScreenGui.Enabled = false
+ aura.Enabled = false
+end)
+
+local function MakeCameraShake(entity: Humanoid, lifetime: number, strength: number, mode: string)
+  task.spawn(function()
+local past = os.clock()
+local i = 0
+repeat game:GetService("RunService").PreSimulation:Wait()
+i = i + 1
+ local shakeIntensity = (strength or 10) * (1 - (i - 1) / ((mode:lower() == "def" and 25) or (mode:lower() == "dim" and 25 * (lifetime or 1)) or 25))
+  local shakeOffset = Vector3.new(math.random(-shakeIntensity, shakeIntensity) / 10, math.random(-shakeIntensity, shakeIntensity) / 10, math.random(-shakeIntensity, shakeIntensity) / 10)
+ local originalOffset = entity.CameraOffset
+ local currentTime = 0
+ while currentTime < 0.01 do
+     local delta = currentTime / 0.01
+     entity.CameraOffset = Vector3.new(0, 0, 0) + shakeOffset * (1 - delta)
+     currentTime = currentTime + task.wait(0.025)
+ end
+ entity.CameraOffset = Vector3.new(0, 0, 0)
+until os.clock() - past >= (lifetime or 1)
+  end)
+end
+
+local function fireelementability()
+local AsteroidPos = game.Players.LocalPlayer:GetMouse().Hit or handle.CFrame
+ task.wait(0.3)
+ 
+local asteroid = Instance.new("Part", workspace)
+asteroid.Material = "CrackedLava"
+asteroid.Color = Color3.new(1, 0, 0)
+asteroid.Shape = "Ball"
+asteroid.Size = Vector3.new(120, 120, 120)
+asteroid.CanCollide = false
+asteroid.Anchored = true
+asteroid.CFrame = AsteroidPos * CFrame.new(0, 2500, -1500)
+game.Debris:AddItem(asteroid, 15)
+
+asteroid.Touched:Connect(function(part)
+  if part.Anchored == false and not part:IsDescendantOf(game.Players.LocalPlayer.Character) and not part.Parent:FindFirstChildOfClass("Humanoid") then
+    part.Velocity = (asteroid.Position - part.Position).Unit * -400
+  end
+end)
+
+local sound = Instance.new("Sound", game.Workspace)
+sound.SoundId = "rbxassetid://5292846003"
+sound.Volume = 2
+sound.PlaybackSpeed = 1
+sound.Looped = false
+sound:Play()
+game.Debris:AddItem(sound, 10)
+
+local partTweenn2 = game:GetService("TweenService"):Create(asteroid, TweenInfo.new(3, Enum.EasingStyle.Linear), {
+        Position = AsteroidPos.Position
+    })
+    partTweenn2:Play()
+ task.wait(3)
+local sound = Instance.new("Sound", game.Workspace)
+sound.SoundId = "rbxassetid://7157159568"
+sound.Volume = 2
+sound.PlaybackSpeed = 1
+sound.Looped = false
+sound:Play()
+game.Debris:AddItem(sound, 10)
+
+local sound = Instance.new("Sound", game.Workspace)
+sound.SoundId = "rbxassetid://4418405082"
+sound.Volume = 2
+sound.PlaybackSpeed = 1
+sound.Looped = false
+sound:Play()
+game.Debris:AddItem(sound, 10)
+asteroid.Transparency = 1
+asteroid.CanTouch = fasle
+asteroid.CanQuery = false
+
+  local explo = Instance.new("Part", workspace)
+  explo.Anchored = true
+  explo.Color = Color3.new(1, 0, 0)
+  explo.Size = Vector3.zero
+  explo.Position = AsteroidPos.Position
+  explo.CanCollide = false
+  explo.Material = "Neon"
+  explo.Shape = "Ball"
+  game.Debris:AddItem(explo, 5)
+  
+  local partTweenn2 = game:GetService("TweenService"):Create(explo, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {
+        Transparency = 1,
+        Color = Color3.new(0, 0, 0),
+        Size = Vector3.new(300, 300, 300)
+    })
+    partTweenn2:Play()
+    
+local crater1 = Instance.new("Part", workspace)
+crater1.Transparency = 1
+crater1.CanCollide = false
+crater1.Position =  AsteroidPos.Position
+crater1.Size = Vector3.new(300, 1, 300)
+crater1.Anchored = true
+game.Debris:AddItem(crater1, 25)
+
+local function createBlock(position)
+  local block = Instance.new("Part", workspace)
+  block.Size = Vector3.new(13, 13, 13)
+  block.Position = position - Vector3.new(0, 1, 0)
+  block.Transparency = 1
+  block.Orientation = Vector3.new(math.random(-360, 360), math.random(-360, 360), math.random(-360, 360))
+  block.CanCollide = false
+  block.Color = Color3.new(0.5, 0, 0)
+  block.Material = "SmoothPlastic"
+  block.Anchored = true
+  game.Debris:AddItem(block, 25)
+end
+
+task.spawn(function()
+  for i = 1, 128 do
+    local angle = math.rad(i * (360 / 42))
+    local x = 310 * math.cos(angle)
+    local z = 310 * math.sin(angle)
+    local position = AsteroidPos.Position + Vector3.new(x, 0, z)
+    createBlock(position)
+  end
+end)
+
+for _, part in next, Workspace:GetPartBoundsInRadius(explo.Position, 175) do
+   if part.Anchored == false and not part: IsDescendantOf(game.Players.LocalPlayer.Character) and not part.Parent:FindFirstChildOfClass("Humanoid") then
+     part.Velocity = (explo.Position - part.Position).Unit * -400
+     if (part.Size.X + part.Size.Y + part.Size.Z) <= 65 then
+       part:BreakJoints()
+     end
+   end
+end
+    
+    local foundHumanoids = {}
+Usuario = game.Players.LocalPlayer
+for _, v in pairs(workspace:GetDescendants()) do
+    if v:IsA("Humanoid") and v.RootPart and v.RootPart.Parent ~= Usuario.Character then
+        local distance = (v.RootPart.Position - AsteroidPos.Position).magnitude
+        if distance <= 175 then
+            table.insert(foundHumanoids, v)
+        end
+    end
+end
+
+MakeCameraShake(game.Players.LocalPlayer.Character.Humanoid, 2.5, 30, "dim")
+  for _, humanoid in pairs(foundHumanoids) do
+    MakeCameraShake(humanoid, 2.5, 30, "dim")
+    humanoid:TakeDamage(1000 + 2000 / (explo.Position - humanoid.RootPart.Position).Magnitude)
+    humanoid:ChangeState("FallingDown")
+    humanoid:UnequipTools()
+    local recoilDirection = (explo.Position - humanoid.RootPart.Position).Unit
+    humanoid.RootPart.Velocity += recoilDirection * -245
+  end
+end
+
+local function waterelementability()
+  local wave = Instance.new("Part", Workspace)
+  wave.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 15, -10)
+  wave.Size = Vector3.new(50, 50, 80)
+  wave.Color = Color3.new(0, 1, 1)
+  wave.CanCollide = false
+  wave.Material = "SmoothPlastic"
+  game.Debris:AddItem(wave, 10)
+  
+  local sound = Instance.new("Sound", wave)
+  sound.SoundId = "rbxassetid://131261549"
+  sound.Volume = 1
+  sound.Looped = true
+  sound.PlaybackSpeed = 1
+  sound:Play()
+  
+  local wave_mesh = Instance.new("SpecialMesh", wave)
+  wave_mesh.MeshId = "rbxassetid://4650782839"
+  wave_mesh.Scale = Vector3.new(10, 10, 17.5)
+  
+  local DontTouch = {}
+  wave.Touched:Connect(function(part)
+    if not part:IsDescendantOf(game.Players.LocalPlayer.Character) and part.Parent:FindFirstChildOfClass("Humanoid") and not table.find(DontTouch, part.Parent:FindFirstChildOfClass("Humanoid")) then
+      table.insert(DontTouch, part.Parent:FindFirstChildOfClass("Humanoid"))
+      local humanoid = part.Parent:FindFirstChildOfClass("Humanoid")
+      humanoid:TakeDamage(math.random(350, 800))
+      humanoid.RootPart.Velocity = ((wave.Position - Vector3.new(0, 10, 0)) - humanoid.RootPart.Position).Unit * -250
+      humanoid:ChangeState("FallingDown")
+    end
+  end)
+  
+  local tween = game:GetService("TweenService"):Create(wave, TweenInfo.new(8, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, 0, false, 0), {
+      CFrame = wave.CFrame * CFrame.new(0, 0, -400)
+    })
+  tween:Play()
+  
+  task.delay(6, function()
+    local tween = game:GetService("TweenService"):Create(wave, TweenInfo.new(1.5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, false, 0), {
+         Transparency = 1
+      })
+    tween:Play()
+    tween.Completed:Wait()
+    
+    wave.CanTouch = false
+    wave.CanQuery = false
+  end)
+end
+
+local function earthelementability()
+   local rootpart = Instance.new("Part", Workspace)
+   rootpart.Anchored = true
+   rootpart.CanCollide = false
+   rootpart.Size = Vector3.zero
+   game.Debris:AddItem(rootpart, 10)
+   local past = os.clock()
+   local count = 0
+   
+   local sound = Instance.new("Sound", game.Workspace)
+   sound.SoundId = "rbxassetid://9085909202"
+   sound.Volume = 1
+   sound.Looped = true
+   sound.PlaybackSpeed = 1
+   sound:Play()
+   game.Debris:AddItem(sound, 10.25)
+ 
+ task.spawn(function()
+   repeat task.wait(0.15)
+  count += 1
+local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(rootpart.Position, 325) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+     for _, humanoid in next, humanoids do
+       humanoid:TakeDamage(5)
+        if count % 5 == 0 then
+          humanoid.RootPart.Velocity += Vector3.new(0, 100, 0)
+        end
+       humanoid.Sit = true
+     end
+     
+     for _, part in next, Workspace:GetPartBoundsInRadius(rootpart.Position, 325) do
+       if part.Anchored == false and not part:IsDescendantOf(game.Players.LocalPlayer.Character) and not part.Parent:FindFirstChildOfClass("Humanoid") and count % 5 == 0 then
+         part.Velocity += Vector3.new(0, 100, 0)
+         if (part.Size.X + part.Size.Y + part.Size.Z) <= 8 then
+           part:BreakJoints()
+         end
+       end
+     end
+   until not rootpart or os.clock() - past >= 10
+ end)
+end
+
+local function airelementability()
+
+end
+
+local function crystalelementability()
+
+end
+
+local function coldelementability()
+
+end
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+  local currentTime = tick()
+            if currentTime - lastPressTime >= tool:GetAttribute("Cooldown") then
+                lastPressTime = currentTime 
+if tool:GetAttribute("Element") == 1 then
+fireelementability()
+tool:SetAttribute("Cooldown", 15)
+elseif tool:GetAttribute("Element") == 2 then
+waterelementability()
+tool:SetAttribute("Cooldown", 20)
+elseif tool:GetAttribute("Element") == 3 then
+earthelementability()
+tool:SetAttribute("Cooldown", 20)
+elseif tool:GetAttribute("Element") == 4 then
+airelementability()
+tool:SetAttribute("Cooldown", 25)
+elseif tool:GetAttribute("Element") == 5 then
+crystalelementability()
+tool:SetAttribute("Cooldown", 15)
+elseif tool:GetAttribute("Element") == 6 then
+coldelementability()
+tool:SetAttribute("Cooldown", 20)
+end
+            end
+end)
