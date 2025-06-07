@@ -1,5 +1,6 @@
 local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
 tool.Name = "Mixed Pistol"
+tool.TextureId = "rbxassetid://13033024713"
 tool.ToolTip = "It is a mixture of many weapons"
 tool.GripPos = Vector3.new(0, -0.2, 0.4)
 tool.CanBeDropped = false
