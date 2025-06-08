@@ -1,0 +1,156 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Taco gun++"
+tool.ToolTip = "Welcome to taco hell" 
+tool.Grip = CFrame.Angles(math.rad(0), math.rad(20), 0)
+tool.GripPos = Vector3.new(0.6, -0.2, 0)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local pot = Instance.new("SpecialMesh", handle)
+pot.Scale = Vector3.new(4, 4, 4)
+pot.MeshId = "rbxassetid://18950769413"
+pot.TextureId = "rbxassetid://18950770540"
+pot.VertexColor = Vector3.new(0.35, 0, 0)
+
+local shootpos = Instance.new("Part", handle)
+shootpos.Size = Vector3.new(1, 1, 1)
+shootpos.CanCollide = false
+shootpos.CanTouch = false
+shootpos.Transparency = 1
+
+local fastening = Instance.new("Weld", shootpos)
+fastening.Part0 = shootpos
+fastening.Part1 = handle
+fastening.C0 = CFrame.new(0, 0, 2)
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+local currentTime = tick()
+    if currentTime - lastPressTime >= 0.6 then
+        lastPressTime = currentTime
+   for i = 1, 3 do task.wait(0.1) coroutine.wrap(function()
+local hitbox = Instance.new("Part", workspace)
+hitbox.Size = Vector3.new(2, 0.5, 2)
+hitbox.Name = "Eatable Taco"
+hitbox.Velocity = game.Players.LocalPlayer:GetMouse().Hit.LookVector * 450
+hitbox.Position = shootpos.Position
+hitbox:SetAttribute("NeedStop", false)
+game.Debris:AddItem(hitbox, 10)
+
+local sound = Instance.new("Sound", handle)
+sound.SoundId = "rbxassetid://174915286"
+sound.Volume = 1
+sound.PlaybackSpeed = 1
+sound:Play()
+game.Debris:AddItem(sound, 5)
+
+local Pitch = Instance.new("PitchShiftSoundEffect", sound)
+Pitch.Octave = 0.65
+Pitch.Priority = 1.5
+
+task.delay(0.025, function()
+ local touev = hitbox.Touched:Connect(function(part)
+    if part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      game.Players.LocalPlayer.Character.Humanoid.Health += 50 + game.Players.LocalPlayer.Character.Humanoid.MaxHealth / 15
+      local sound = Instance.new("Sound", game.Players.LocalPlayer.Character.PrimaryPart)
+      sound.SoundId = "rbxassetid://3043029786"
+      sound.Volume = 1
+      sound.PlaybackSpeed = 1
+      sound:Play()
+      game.Debris:AddItem(sound, 5)
+      hitbox:Destroy()
+      elseif not part:IsDescendantOf(game.Players.LocalPlayer.Character) and part.Parent:FindFirstChildOfClass("Humanoid") then
+        local weld = Instance.new("Weld", hitbox)
+        weld.Part0 = hitbox
+        weld.Part1 = part
+        weld.C0 = CFrame.new((hitbox.Position - part.Position).Unit, hitbox.CFrame.LookVector)
+        touev:Disconnect()
+      elseif not part:IsDescendantOf(game.Players.LocalPlayer.Character) and not part.Parent:FindFirstChildOfClass("Humanoid") and part.Name ~= "Eatable Taco" then
+      if hitbox:GetAttribute("NeedStop") == false then
+        hitbox:SetAttribute("NeedStop", true)
+        hitbox.Velocity = Vector3.zero
+        hitbox.AssemblyAngularVelocity = Vector3.zero
+        
+        local sound = Instance.new("Sound", hitbox)
+        sound.SoundId = "rbxassetid://12222152"
+        sound.Volume = 1
+        sound.PlaybackSpeed = 1
+        sound:Play()
+      end
+    end
+  end)
+end)
+
+local mesh = Instance.new("SpecialMesh", hitbox)
+mesh.MeshId = "rbxassetid://14846869"
+mesh.TextureId = "rbxassetid://14846834"
+mesh.Scale = Vector3.new(1, 1, 1)
+mesh.VertexColor = Vector3.new(0.35, 0, 0)
+
+task.wait(1.5)
+if hitbox == nil or not hitbox or not hitbox:FindFirstChildOfClass("SpecialMesh") then return end
+
+local explosion = Instance.new("Part", workspace)
+explosion.Size = Vector3.zero
+explosion.CanCollide = false
+explosion.CanTouch = false
+explosion.Anchored = true
+explosion.Color = Color3.new(0.25, 0, 0)
+explosion.Material = "Neon"
+explosion.Shape = "Ball"
+explosion.Position = hitbox.Position
+game.Debris:AddItem(explosion, 10)
+
+local sound = Instance.new("Sound", explosion)
+sound.SoundId = "rbxassetid://81116734"
+sound.Volume = 2
+sound.PlaybackSpeed = 1
+sound:Play()
+
+local Pitch = Instance.new("PitchShiftSoundEffect", sound)
+Pitch.Octave = 0.65
+Pitch.Priority = 1.5
+
+local partTweenn2 = game:GetService("TweenService"):Create(explosion, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {
+    Size = Vector3.new(50, 50, 50)
+ })
+partTweenn2:Play()
+
+local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(explosion.Position, 45) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+for _, humanoid in next, humanoids do
+  humanoid:TakeDamage(95)
+  humanoid.RootPart.Velocity = (explosion.Position - humanoid.RootPart.Position).Unit * 300
+end
+
+      task.delay(0.5, function()
+        local partTweenn2 = game:GetService("TweenService"):Create(explosion, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {
+            Size = Vector3.zero
+          })
+        partTweenn2:Play()
+      end)
+      hitbox:Destroy()
+       end)()
+    end
+  end
+end)
+
+tool.Equipped:Connect(function()
+  local Anim = Instance.new("Animation", game.Players.LocalPlayer.Character)
+  Anim.AnimationId = "rbxassetid://182631367"
+  Anim.Name = "HoldAnim"
+  local k = game:GetService("Players").LocalPlayer.Character.Humanoid:LoadAnimation(Anim)
+  k:Play()
+  k:AdjustSpeed(1)
+  tool.Unequipped:Wait()
+  k:Stop()
+  anim:Destroy()
+end)
