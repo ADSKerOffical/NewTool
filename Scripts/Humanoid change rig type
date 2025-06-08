@@ -1,0 +1,7 @@
+-- Script, ServerScriptService
+game.Players.PlayerAdded:Connect(function(player)
+  player.CharacterAdded:Connect(function(char)
+    local humanoid = char:WaitForChild("Humanoid")
+    humanoid.RigType = Enum.HumanoidRigType.R6
+  end)
+end)
