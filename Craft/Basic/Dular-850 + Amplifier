@@ -1,0 +1,117 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Dular-850+"
+tool.Grip = CFrame.Angles(0, math.rad(20), 0)
+tool.GripPos = Vector3.new(0.25, -0.3, 0.5)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://443685014"
+mesh.TextureId = "rbxassetid://443685020"
+mesh.Scale = Vector3.new(1.75, 1.75, 1.75)
+mesh.VertexColor = Vector3.new(1, 0, 0)
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+local currentTime = tick()
+  if currentTime - lastPressTime >= 0.5 then
+    lastPressTime = currentTime
+     local mousepos = game.Players.LocalPlayer:GetMouse().Hit.LookVector
+      for i = 1, 2 do task.wait(0.025)
+        local ball = Instance.new("Part", Workspace)
+        ball.Color = Color3.new(0.9, 0, 0)
+        ball.Transparency = 0.05
+        ball.Material = "Neon"
+        ball.Shape = "Ball"
+        ball.Name = "Dular850Shot"
+        ball.CanCollide = false
+        ball.Position = handle.Position + game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.LookVector * 2
+        ball.CFrame = CFrame.new(ball.Position, mousepos)
+        ball.Size = Vector3.new(2, 2, 2)
+        game.Debris:AddItem(ball, 10)
+        
+        local sound = Instance.new("Sound", handle)
+        sound.SoundId = "rbxassetid://1624609598"
+        sound.Volume = 1
+        sound.PlaybackSpeed = 1
+        sound:Play()
+        game.Debris:AddItem(sound, 10)
+        
+        local Pitch = Instance.new("PitchShiftSoundEffect", sound)
+        Pitch.Octave = 0.8
+        Pitch.Priority = 1.5
+        
+        local flash = Instance.new("PointLight", handle)
+        flash.Range = 8
+        flash.Brightness = 1.5
+        flash.Color = Color3.new(1, 0, 0)
+        game.Debris:AddItem(flash, 0.075)
+        
+        local bv = Instance.new("BodyVelocity", ball)
+        bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+        bv.Velocity = mousepos * 600
+        
+       ball.Touched:Connect(function(part)
+          if not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+          local explosion = Instance.new("Part", workspace)
+          explosion.Anchored = true
+          explosion.CanCollide = false
+          explosion.CanTouch = false
+          explosion.Size = Vector3.zero
+          explosion.Color = Color3.new(1, 0, 0)
+          explosion.Shape = "Ball"
+          explosion.Material = "Neon"
+          explosion.Position = ball.Position
+          game.Debris:AddItem(explosion, 8)
+          ball:Destroy()
+          
+          local partTweenn2 = game:GetService("TweenService"):Create(explosion, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {
+              Size = Vector3.new(30, 30, 30)
+            })
+          partTweenn2:Play()
+          
+          task.delay(0.5, function()
+           explosion.Material = "SmoothPlastic"
+            local partTweenn2 = game:GetService("TweenService"):Create(explosion, TweenInfo.new(0.3, Enum.EasingStyle.Sine), {
+                 Transparency = 1,
+                 Color = Color3.new(0, 0, 0)
+              })
+            partTweenn2:Play()
+          end)
+          
+              local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(explosion.Position, 30) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+for _, humanoid in next, humanoids do
+   humanoid:TakeDamage(30)
+   humanoid.RootPart.Velocity = (explosion.Position - humanoid.RootPart.Position).Unit * -225
+    local random = math.random(1, 8)
+    if random == 1 then
+      humanoid:ChangeState("FallingDown")
+    end
+end
+          end
+       end)
+        
+      end 
+    end
+end)
+
+tool.Equipped:Connect(function()
+  local Anim = Instance.new("Animation")
+  Anim.AnimationId = "rbxassetid://182631367"
+  Anim.Name = "HoldAnim"
+  local k = game:GetService("Players").LocalPlayer.Character.Humanoid:LoadAnimation(Anim)
+  k:Play()
+  k:AdjustSpeed(1)
+  tool.Unequipped:Wait()
+  k:Stop()
+  Anim:Destroy()
+end)
