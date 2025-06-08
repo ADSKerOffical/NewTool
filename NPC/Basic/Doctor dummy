@@ -1,0 +1,92 @@
+local npc = game:GetObjects("rbxassetid://4446576906")[1]
+npc.Parent = workspace
+npc:MoveTo(game.Players.LocalPlayer.Character.HumanoidRootPart.Position)
+npc.Humanoid.MaxHealth = 150
+npc.Humanoid.Health += 150
+
+ local hat = Instance.new("Part", npc.Head)
+ hat.Name = "Armor_Medic hat"
+ hat.Parent = npc.Head
+ hat.Anchored = false
+ hat.CanCollide = false
+ 
+ local cooldown_time = 0
+ local previousHealth = npc.Humanoid.MaxHealth
+ conne = npc.Humanoid.HealthChanged:Connect(function(newHealth)
+   local cooldown = tick()
+     if newHealth < previousHealth and cooldown - cooldown_time >= 0.5 then
+       cooldown_time = cooldown
+       coroutine.wrap(function()
+         local light = Instance.new("PointLight", hat)
+         light.Range = 20
+         light.Brightness = 1.5
+         light.Color = Color3.new(0, 1, 0)
+         game.Debris:AddItem(light, 4)
+         
+         local sound = Instance.new("Sound", hat)
+         sound.SoundId = "rbxassetid://414608680"
+         sound.Volume = 1
+         sound.PlaybackSpeed = 1
+         sound:Play()
+         game.Debris:AddItem(sound, 8)
+         
+         local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(hat.Position, 15) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and part:IsDescendantOf(npc) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+   for _, humanoid in next, humanoids do
+     humanoid.Health += humanoid.MaxHealth / 20
+   end
+         
+         task.wait(1.5)
+         
+         local partTweenn2 = game:GetService("TweenService"):Create(light, TweenInfo.new(1, Enum.EasingStyle.Sine), {
+               Range = 0
+            })
+         partTweenn2:Play()
+       end)()
+     end
+    previousHealth = newHealth
+ end)
+ 
+ hat.Destroying:Connect(function()
+   conne:Disconnect()
+ end)
+ 
+ local info = Instance.new("Folder", hat)
+ info.Name = "HatInfo"
+ 
+ local info_Owner = Instance.new("ObjectValue", info)
+ info_Owner.Name = "Owner"
+ info_Owner.Value = game.Players.LocalPlayer
+ 
+ local info_Rarity = Instance.new("StringValue", info)
+ info_Rarity.Name = "Rarity"
+ info_Rarity.Value = "Super rare"
+ 
+ local info_Name = Instance.new("StringValue", info)
+ info_Name.Name = "Name"
+ info_Name.Value = "Medic hat"
+ 
+ local info_Group = Instance.new("StringValue", info)
+ info_Group.Name = "Group"
+ info_Group.Value = "None" 
+ 
+ local joint1 = Instance.new("Weld", hat)
+ joint1.C0 = CFrame.new(0, 0.6, 0)
+ joint1.Part0 = npc.Head
+ joint1.Part1 = hat
+
+local mesh = Instance.new("SpecialMesh", hat)
+mesh.MeshId = "rbxassetid://17424260"
+mesh.TextureId = "rbxassetid://20988577"
+mesh.Scale = Vector3.new(1.2, 1.2, 1.2)
+
+npc.Humanoid.Died:Connect(function()
+  game.Debris:AddItem(npc, 5)
+end)
