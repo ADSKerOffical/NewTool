@@ -1,0 +1,97 @@
+local player = game.Players.LocalPlayer
+local tool = Instance.new("Tool", player.Backpack)
+tool.Name = "Baseball Bat+"
+tool.Grip = CFrame.Angles(math.rad(90), 0, 0)
+tool.GripPos = Vector3.new(0, 0, -1.85)
+tool.ToolTip = "Keep the whole area in fear"
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://54983181"
+mesh.TextureId = "rbxassetid://54983107"
+mesh.Scale = Vector3.new(3, 3, 2)
+mesh.VertexColor = Vector3.new(0.85, 0, 0)
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+  local currentTime = tick()
+            if currentTime - lastPressTime >= 1.5 then
+                lastPressTime = currentTime 
+local Anim = Instance.new("Animation")
+Anim.AnimationId = "rbxassetid://218504594"
+local k = player.Character.Humanoid:LoadAnimation(Anim)
+k:Play()
+k:AdjustSpeed(2)
+ task.wait(0.2)
+local sound = Instance.new("Sound", handle)
+sound.SoundId = "rbxassetid://3521528211"
+sound.Volume = 2
+sound.PlaybackSpeed = 1
+sound.Looped = false
+sound:Play()
+game.Debris:AddItem(sound, 8)
+
+local Pitch = Instance.new("PitchShiftSoundEffect", sound)
+Pitch.Octave = 0.8
+Pitch.Priority = 1.5
+
+local foundHumanoids = {}
+for _, v in pairs(workspace:GetDescendants()) do
+    if v:IsA("Humanoid") and v.RootPart and v.RootPart.Parent ~= player.Character then
+        local distance = (v.RootPart.Position - player.Character.HumanoidRootPart.Position).magnitude
+        if distance <= 9 then
+            table.insert(foundHumanoids, v)
+        end
+    end
+end
+
+for _, humanoid in pairs(foundHumanoids) do
+  humanoid.Sit = true
+  humanoid:TakeDamage(40)
+  humanoid.RootPart.Velocity = player.Character.HumanoidRootPart.CFrame.LookVector * 90 + Vector3.new(0, 35, 0)
+  
+local sound = Instance.new("Sound", humanoid.RootPart)
+sound.SoundId = "rbxassetid://175024455"
+sound.Volume = 1
+sound.PlaybackSpeed = 1
+sound.Looped = false
+sound:Play()
+game.Debris:AddItem(sound, 8)
+
+local Pitch = Instance.new("PitchShiftSoundEffect", sound)
+Pitch.Octave = 0.8
+Pitch.Priority = 1.5
+end
+            end
+end)
+
+tool.Equipped:Connect(function()
+local Anim = Instance.new("Animation")
+Anim.AnimationId = "rbxassetid://96065457"
+Anim.Name = "WarHammer_IdleAnimation"
+local k = player.Character.Humanoid:LoadAnimation(Anim)
+k:Play()
+k:AdjustSpeed(1)
+
+local sound = Instance.new("Sound", handle)
+sound.SoundId = "rbxassetid://7642880841"
+sound.Volume = 1
+sound.PlaybackSpeed = 1
+sound.Looped = false
+sound:Play()
+game.Debris:AddItem(sound, 6)
+
+local Pitch = Instance.new("PitchShiftSoundEffect", sound)
+Pitch.Octave = 0.8
+Pitch.Priority = 1.5
+end)
+
+tool.Unequipped:Connect(function()
+for _, track in ipairs(player.Character.Humanoid:GetPlayingAnimationTracks()) do
+      if track.Animation.AnimationId == "rbxassetid://96065457" or track.Animation.Name == "WarHammer_IdleAnimation" then
+      track:Stop()
+      end
+end
+end)
