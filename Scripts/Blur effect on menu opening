@@ -1,0 +1,24 @@
+-- LocalScript, StarterGui
+game:GetService("GuiService").MenuOpened:Connect(function()
+  local blur = Instance.new("BlurEffect", game.Lighting)
+  blur.Size = 0
+  
+  if game.Players.LocalPlayer.PlayerGui:FindFirstChild("RootBackpackGui") then
+    game.Players.LocalPlayer.PlayerGui.RootBackpackGui.Enabled = false
+  end
+
+  local tween = game:GetService("TweenService"):Create(blur, TweenInfo.new(0.7, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, 0, false, 0), {
+      Size = 20
+    })
+  tween:Play()
+  game:GetService("GuiService").MenuClosed:Wait()
+  local tween = game:GetService("TweenService"):Create(blur, TweenInfo.new(0.3, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, 0, false, 0), {
+      Size = 0
+    })
+  tween:Play()
+  game.Debris:AddItem(blur, 5)
+  
+  if game.Players.LocalPlayer.PlayerGui:FinsFirstChild("RootBackpackGui") then
+    game.Players.LocalPlayer.PlayerGui.RootBackpackGui.Enabled = true
+  end
+end)
