@@ -1,6 +1,7 @@
 local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
 tool.Name = "Smart gun"
 tool.ToolTip = "He decides for you what you want"
+tool.TextureId = "rbxassetid://10160502775"
 
 local handle = Instance.new("Part", tool)
 handle.Name = "Handle"
