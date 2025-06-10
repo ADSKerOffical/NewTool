@@ -1,0 +1,89 @@
+local npc = game:GetObjects("rbxassetid://4446576906")[1] or game:GetService("InsertService"):LoadAsset(4446576906)
+npc.Parent = workspace
+npc:MoveTo(game.Players.LocalPlayer.Character.HumanoidRootPart.Position + game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.LookVector * 3)
+
+npc.Humanoid.MaxHealth = 1000000 
+npc.Humanoid.DisplayName = "Power meter"
+npc.Humanoid.HealthDisplayDistance = 0
+npc.Humanoid.Health = npc.Humanoid.MaxHealth
+local maxHealth = npc.Humanoid.MaxHealth
+
+for _, part in next, npc:GetDescendants() do
+  if part:IsA("BasePart") then
+    part.Color = Color3.new(0.7, 0.7, 0.7)
+   elseif part:IsA("FaceInstance") then
+    part.Texture = ""
+  end
+end
+
+for _, side in next, Enum.NormalId:GetEnumItems() do
+  local texture = Instance.new("Decal", npc.HumanoidRootPart)
+  texture.Texture = "rbxassetid://10785940179"
+  texture.Face = side
+end
+
+npc.Humanoid:SetStateEnabled("Seated", false)
+npc.Humanoid:SetStateEnabled("PlatformStanding", false)
+
+npc.Humanoid.FallingDown:Connect(function()
+  npc.Humanoid:ChangeState("GettingUp")
+end)
+
+local lastHealthChange = tick()
+local totalDamage = 0
+
+npc.Humanoid.HealthChanged:Connect(function(health)
+    local damageThisTick = npc.Humanoid.MaxHealth - health - totalDamage
+    totalDamage = npc.Humanoid.MaxHealth - health
+    lastHealthChange = tick()
+end)
+
+yue = game:GetService("RunService").Heartbeat:Connect(function()
+    if tick() - lastHealthChange >= 1.5 and totalDamage > 0 then
+        local billboardGui = Instance.new("BillboardGui", npc.HumanoidRootPart)
+    billboardGui.Size = UDim2.new(0, 50, 0, 20)
+    billboardGui.AlwaysOnTop = true
+    billboardGui.StudsOffset = Vector3.new(0, 3, 0)
+
+    local textLabel = Instance.new("TextLabel", billboardGui)
+    textLabel.Size = UDim2.new(1, 0, 1, 0)
+    textLabel.BackgroundTransparency = 1
+    textLabel.Text = "-" .. tostring(totalDamage)
+    textLabel.TextColor3 = Color3.new(1, 0, 0)
+    textLabel.TextScaled = true
+    game.Debris:AddItem(billboardGui, 2)
+    
+    local sound = Instance.new("Sound", npc.HumanoidRootPart)
+    sound.SoundId = "rbxassetid://1283290053"
+    sound.Volume = 1
+    sound.PlaybackSpeed = 1
+    sound:Play()
+    game.Debris:AddItem(sound, 9)
+    
+    sound.Ended:Connect(function()
+      sound:Destroy()
+    end)
+
+        npc.Humanoid.Health = npc.Humanoid.MaxHealth
+        
+        if npc.Humanoid.Health <= 0 then
+          npc.Humanoid.Health = npc.Humanoid.MaxHealth
+        end
+        
+        totalDamage = 0
+    end
+end)
+
+npc.HumanoidRootPart:GetPropertyChangedSignal("Velocity"):Connect(function()
+  if npc.HumanoidRootPart.Velocity.Magnitude >= 60 then
+    npc.HumanoidRootPart.Velocity = Vector3.zero
+  end
+end)
+
+npc.Humanoid.Died:Connect(function()
+  game.Debris:AddItem(npc, 5)
+end)
+
+npc.Destroying:Connect(function()
+  yue:Disconnect()
+end)
