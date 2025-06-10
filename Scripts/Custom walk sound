@@ -1,0 +1,30 @@
+-- LocalScript, StarterCharacterScripts
+local Humanoid = game.Players.LocalPlayer.Character:WaitForChild("Humanoid")
+local Walk = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart"):WaitForChild("Running")
+
+coroutine.wrap(function()
+  repeat task.wait()
+	if Humanoid then
+	 Walk.Volume = (UserSettings():GetService("UserGameSettings").MasterVolume * 1.5) or 1
+	 Walk.PlaybackSpeed = Humanoid.WalkSpeed / game.StarterPlayer.CharacterWalkSpeed
+	
+		if Humanoid.FloorMaterial == Enum.Material.Grass or Humanoid.FloorMaterial == Enum.Material.LeafyGrass or Humanoid.FloorMaterial == Enum.Material.Ground or Humanoid.FloorMaterial == Enum.Material.Mud then
+			Walk.SoundId = "rbxassetid://9064714296"
+		elseif Humanoid.FloorMaterial == Enum.Material.Rock or Humanoid.FloorMaterial == Enum.Material.Sandstone or Humanoid.FloorMaterial == Enum.Material.Brick or Humanoid.FloorMaterial == Enum.Material.Granite or Humanoid.FloorMaterial == Enum.Material.Concrete or Humanoid.FloorMaterial == Enum.Material.Cobblestone or Humanoid.FloorMaterial == Enum.Material.Pebble or Humanoid.FloorMaterial == Enum.Material.Limestone or Humanoid.FloorMaterial == Enum.Material.Slate then
+			Walk.SoundId = "rbxassetid://5446226292"
+		elseif Humanoid.FloorMaterial == Enum.Material.Plastic or Humanoid.FloorMaterial == Enum.Material.SmoothPlastic then
+			Walk.SoundId = "rbxassetid://833564121"
+		elseif Humanoid.FloorMaterial == Enum.Material.Air or Humanoid.FloorMaterial == Enum.Material.Water or Humanoid.FloorMaterial == Enum.Material.Neon then
+		   Walk.SoundId = "rbxassetid://0"
+		elseif Humanoid.FloorMaterial == Enum.Material.Wood or Humanoid.FloorMaterial == Enum.Material.WoodPlanks then
+		   Walk.SoundId = "rbxassetid://9064822808"
+		elseif Humanoid.FloorMaterial == Enum.Material.Metal or Humanoid.FloorMaterial == Enum.Material.DiamondPlate or Humanoid.FloorMaterial == Enum.Material.CorrodedMetal then
+		   Walk.SoundId = "rbxassetid://9064974448"
+		elseif Humanoid.FloorMaterial == Enum.Material.Sand then
+		  Walk.SoundId = "rbxassetid://9064853890"
+		elseif Humanoid.FloorMaterial == Enum.Material.Snow then
+		  Walk.SoundId = "rbxassetid://6582753932"
+		end
+	end
+  until not Walk or not Humanoid
+end)()
