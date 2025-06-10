@@ -1,30 +1,32 @@
-  local back = Instance.new("Part", game.Players.LocalPlayer.Character:FindFirstChild("Torso"))
-  back.CanCollide = false
-  back.Name = "SOD_Back"
-  back.Size = Vector3.new(2, 2, 0.5)
-  back.CFrame = game.Players.LocalPlayer.Character:FindFirstChild("Torso").CFrame * CFrame.Angles(1, math.rad(0), 0)
-  game.Players.LocalPlayer.SimulationRadius = math.huge
+local player = game.Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local back = Instance.new("Part", char:WaitForChild("HumanoidRootPart"))
+back.CanCollide = false
+back.Name = "SOD_Back"
+back.Size = Vector3.new(2, 2, 0.5)
+back.CFrame = char:WaitForChild("HumanoidRootPart").CFrame * CFrame.Angles(1, math.rad(0), 0)
+game.Players.LocalPlayer.SimulationRadius = math.huge
 
-  local attach = Instance.new("Weld", game.Players.LocalPlayer.Character:FindFirstChild("Torso"))
-  attach.Part0 = back
-  attach.Name = "SOD_Back_Joint"
-  attach.Part1 = game.Players.LocalPlayer.Character:FindFirstChild("Torso")
-  attach.C0 = CFrame.new(0, 0, -0.75) * CFrame.Angles(0, 0, 40) 
+local attach = Instance.new("Weld", back)
+attach.Part0 = back
+attach.Name = "SOD_Back_Joint"
+attach.Part1 = char:FindFirstChild("HumanoidRootPart")
+attach.C0 = CFrame.new(0, 0, -0.75) * CFrame.Angles(0, 0, 40) 
 
-  local sworddec = Instance.new("SpecialMesh", back)
-  sworddec.Name = "SOD_Back_Mesh"
-  sworddec.TextureId = "rbxassetid://83509797"
-  sworddec.MeshId = "rbxassetid://83509558"
+local sworddec = Instance.new("SpecialMesh", back)
+sworddec.Name = "SOD_Back_Mesh"
+sworddec.TextureId = "rbxassetid://83509797"
+sworddec.MeshId = "rbxassetid://83509558"
 
 local Anim1 = Instance.new("Animation")
 Anim1.AnimationId = "rbxassetid://74909551"
-slash1a = game:GetService("Players").LocalPlayer.Character.Humanoid:LoadAnimation(Anim1)
+slash1a = char:WaitForChild("Humanoid"):LoadAnimation(Anim1)
 
 local Anim2 = Instance.new("Animation")
 Anim2.AnimationId = "rbxassetid://74909537"
-slash2a = game:GetService("Players").LocalPlayer.Character.Humanoid:LoadAnimation(Anim2)
+slash2a = char.Humanoid:LoadAnimation(Anim2)
 
-local sword = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+local sword = Instance.new("Tool", player:WaitForChild("Backpack"))
 sword.Name = "Sword of Doomsday"
 sword:SetAttribute("CanAttack", true)
 sword.Grip = CFrame.Angles(0, math.rad(-90), 0)
@@ -58,7 +60,7 @@ sues.Volume = 1
 sues.PlaybackSpeed = 1
 sues.Looped = false
 
-local ScreenGui = Instance.new("ScreenGui", game.Players.LocalPlayer.PlayerGui)
+local ScreenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 ScreenGui.Enabled = false
 ScreenGui.Name = "SOD_GuiWithAbilities"
 ScreenGui.ResetOnSpawn = true 
@@ -78,21 +80,22 @@ RGBColor.Color = ColorSequence.new(Color3.new(1, 0, 0), Color3.new(1, 0.5, 0), C
 
 local lastPressTime = 0
 Button.MouseButton1Click:Connect(function()
+ if sword:GetAttribute("CanAttack") == true then
   local currentTime = tick()
     if currentTime - lastPressTime >= 10 then
         lastPressTime = currentTime
 sword:SetAttribute("CanAttack", false)
-local defense = Instance.new("ForceField", sword.Parent or game.Players.LocalPlayer.Character)
+local defense = Instance.new("ForceField", sword.Parent or char)
 defense.Visible = false
 game.Debris:AddItem(defense, 2)
-     task.delay(2, function()
-       sword:SetAttribute("CanAttack", true)
-     end)
+  task.delay(2, function()
+     sword:SetAttribute("CanAttack", true)
+  end)
     
 local lastTime = os.clock()
-game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 75
+char.Humanoid.WalkSpeed = 75
 
-for _, part in next, game.Players.LocalPlayer.Character:GetDescendants() do
+for _, part in next, char:GetDescendants() do
   if part:IsA("BasePart") and part.Transparency < 0.5 then
     local saved = part.CurrentPhysicalProperties
     part.CustomPhysicalProperties = PhysicalProperties.new(0.05, 1, 1)
@@ -100,8 +103,8 @@ for _, part in next, game.Players.LocalPlayer.Character:GetDescendants() do
   end
 end
 
-local BF = Instance.new("BodyForce", game.Players.LocalPlayer.Character.HumanoidRootPart)
-BF.Force = Vector3.new(0, game.Players.LocalPlayer.Character.HumanoidRootPart:GetMass() * workspace.Gravity * (1 - -2.5) * 0.2, 0)
+local BF = Instance.new("BodyForce", char.HumanoidRootPart)
+BF.Force = Vector3.new(0, char.HumanoidRootPart:GetMass() * workspace.Gravity * (1 - -2.5) * 0.2, 0)
 game.Debris:AddItem(BF, 2)
 
 local circle = Instance.new("Part", Workspace)
@@ -117,11 +120,11 @@ game.Debris:AddItem(circle, 20)
 
 local circle_mesh = Instance.new("SpecialMesh", circle)
 circle_mesh.MeshId = "rbxassetid://12869217128"
-circle_mesh.Scale = Vector3.new(-20, -20, -20)
+circle_mesh.Scale = Vector3.new(20, 20, 20)
 
 local circle_weld = Instance.new("Weld", circle)
 circle_weld.Part0 = circle
-circle_weld.Part1 = game.Players.LocalPlayer.Character.HumanoidRootPart
+circle_weld.Part1 = char.HumanoidRootPart
 circle_weld.C0 = CFrame.Angles(math.rad(math.random(-360, 360)), math.rad(math.random(-360, 360)), math.rad(math.random(-360, 360)))
 
 task.spawn(function()
@@ -135,7 +138,7 @@ end)
        coroutine.wrap(function()
          local slash = Instance.new("Part", Workspace)
          slash.Color = Color3.new(1, 1, 1)
-         slash.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.Angles(math.rad(math.random(-360, 360)), math.rad(math.random(-360, 360)), math.rad(math.random(-360, 360)))
+         slash.CFrame = char.HumanoidRootPart.CFrame * CFrame.Angles(math.rad(math.random(-360, 360)), math.rad(math.random(-360, 360)), math.rad(math.random(-360, 360)))
          slash.CanCollide = false
          slash.CanQuery = false
          slash.Anchored = true
@@ -157,7 +160,7 @@ end)
          
          local humanoids = {}
 for _, part in next, Workspace:GetPartBoundsInRadius(handle.Position, 45) do
-    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(char) then
       if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
         table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
       end
@@ -168,7 +171,7 @@ for _, part in next, Workspace:GetPartBoundsInRadius(handle.Position, 45) do
       if i % 2 == 0 then
         humanoid:TakeDamage(75)
         
-        if humanoid.Health > 0 and (humanoid.RootPart.Position - (handle.Position or game.Players.LocalPlayer.Character.HumanoidRootPart.Position)).Magnitude <= 15 then
+        if humanoid.Health > 0 and (humanoid.RootPart.Position - (handle.Position or char.HumanoidRootPart.Position)).Magnitude <= 15 then
           humanoid:TakeDamage(200)
         end
         
@@ -202,7 +205,7 @@ for _, part in next, Workspace:GetPartBoundsInRadius(handle.Position, 45) do
     end
     
     for _, part in next, Workspace:GetPartBoundsInRadius(handle.Position, 45) do
-       if part.Anchored == false and not part:IsDescendantOf(game.Players.LocalPlayer.Character) and not part.Parent:FindFirstChildOfClass("Humanoid") then
+       if part.Anchored == false and not part:IsDescendantOf(char) and not part.Parent:FindFirstChildOfClass("Humanoid") and part.Name ~= "Handle" then
           if (part.Size.X + part.Size.Y + part.Size.Z) <= 10 then
             part:BreakJoints()
           end
@@ -217,9 +220,10 @@ for _, part in next, Workspace:GetPartBoundsInRadius(handle.Position, 45) do
        end)()
      end
      
-     game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = game.StarterPlayer.CharacterWalkSpeed or 16
-     game.Players.LocalPlayer.Character.HumanoidRootPart.Velocity += game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.LookVector * (game.Players.LocalPlayer.Character.Humanoid.FloorMaterial ~= Enum.Material.Air and 250 or 100)
+     char.Humanoid.WalkSpeed = game.StarterPlayer.CharacterWalkSpeed or 16
+     char.HumanoidRootPart.Velocity += char.HumanoidRootPart.CFrame.LookVector * (char.Humanoid.FloorMaterial ~= Enum.Material.Air and 250 or 100)
      circle:SetAttribute("Done", true)
+    end
    end
 end)
 
@@ -254,7 +258,7 @@ local currentTime = tick()
     
     local slash = Instance.new("Part", Workspace)
     slash.Color = Color3.new(1, 1, 1)
-    slash.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, -0.6, -2)
+    slash.CFrame = char.HumanoidRootPart.CFrame * CFrame.new(0, -0.6, -2)
     slash.CanCollide = false
     slash.Anchored = true
     slash.Size = Vector3.new(10, 2, 2)
@@ -272,8 +276,8 @@ local currentTime = tick()
     partTweenn2:Play()
     
     local humanoids = {}
-for _, part in next, Workspace:GetPartBoundsInRadius(handle.Position + game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.LookVector * 8, 18) do
-    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+for _, part in next, Workspace:GetPartBoundsInRadius(handle.Position + char.HumanoidRootPart.CFrame.LookVector * 8, 18) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(char) and part.Parent:FindFirstChildOfClass("Humanoid").Health > 0 then
       if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
         table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
       end
@@ -295,14 +299,14 @@ for _, part in next, Workspace:GetPartBoundsInRadius(handle.Position + game.Play
   end
 end)
 
-local previousHealth = game.Players.LocalPlayer.Character.Humanoid.MaxHealth
- conne = game.Players.LocalPlayer.Character.Humanoid.HealthChanged:Connect(function(newHealth)
-     if newHealth < previousHealth and sword.Parent == game.Players.LocalPlayer.Character then
-       if (previousHealth - newHealth) <= 300 then
-         game.Players.LocalPlayer.Character.Humanoid.Health += (previousHealth - newHealth)
+local previousHealth = char.Humanoid.MaxHealth
+ conne = char.Humanoid.HealthChanged:Connect(function(newHealth)
+     if newHealth < previousHealth and sword.Parent == char then
+       if (previousHealth - newHealth) <= 400 then
+         char.Humanoid.Health += (previousHealth - newHealth)
          task.spawn(function()
          
-          for _, part in next, game.Players.LocalPlayer.Character:GetDescendants() do
+          for _, part in next, char:GetDescendants() do
             if part:IsA("BasePart") and part.Transparency < 0.5 then
               part.Transparency = 0.5
               task.delay(0.15, function() part.Transparency = 0 end)
@@ -313,8 +317,8 @@ local previousHealth = game.Players.LocalPlayer.Character.Humanoid.MaxHealth
           end
           
            for i = 1, 6 do task.wait(0.025)
-             game.Players.LocalPlayer.Character.Archivable = true
-             local cope = game.Players.LocalPlayer.Character:Clone()
+             char.Archivable = true
+             local cope = char:Clone()
              cope.Parent = Workspace
              cope.Humanoid.DisplayName = ""
              cope.Humanoid.HealthDisplayDistance = 0
@@ -348,14 +352,17 @@ local previousHealth = game.Players.LocalPlayer.Character.Humanoid.MaxHealth
  
  local lastPressTime2 = 0
  Button2.MouseButton1Click:Connect(function()
+  if sword:GetAttribute("CanAttack") == true then
    local currentTime = tick()
      if currentTime - lastPressTime2 >= 10 then
         lastPressTime2 = currentTime
-local slashAnim = Instance.new("Animation", game.Players.LocalPlayer.Character)
+local slashAnim = Instance.new("Animation", char)
 slashAnim.AnimationId = "rbxassetid://218504594"
-local DoSA = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(slashAnim)
+local DoSA = char.Humanoid:LoadAnimation(slashAnim)
 DoSA:Play()
 DoSA:AdjustSpeed(2.3)
+sword:SetAttribute("CanAttack", false)
+task.delay(0.3, function() sword:SetAttribute("CanAttack", true) end)
   task.wait(0.15)
 local sound = Instance.new("Sound", handle)
 sound.SoundId = "rbxassetid://45885030"
@@ -376,7 +383,7 @@ slash.Material = "SmoothPlastic"
 slash.CanCollide = false
 slash.Transparency = 0.35
 slash.Anchored = true
-slash.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, -0.3, -4)
+slash.CFrame = char.HumanoidRootPart.CFrame * CFrame.new(0, -0.3, -4)
 slash.CustomPhysicalProperties = PhysicalProperties.new(100, 100, 0)
 slash.Size = Vector3.new(50, 8, 8)
 game.Debris:AddItem(slash, 10)
@@ -390,7 +397,7 @@ task.spawn(function()
   repeat task.wait()
     local humanoids = {}
 for _, part in next, Workspace:GetPartBoundsInRadius(slash.Position, 20) do
-    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) and part.Parent:GetAttribute("NotNeedHit") == nil then
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(char) and part.Parent:GetAttribute("NotNeedHit") == nil then
       if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
         table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
       end
@@ -410,10 +417,35 @@ for _, part in next, Workspace:GetPartBoundsInRadius(slash.Position, 20) do
       humanoid.Parent:SetAttribute("NotNeedHit", true) 
       task.delay(1.5, function() if humanoid then humanoid.Parent:SetAttribute("NotNeedHit", nil) end end)
      end
-   end
+      
+       if humanoid.Health <= 0 and humanoid:GetStateEnabled("Dead") then
+   local sound = Instance.new("Sound", humanoid.RootPart)
+   sound.SoundId = "rbxassetid://314390675"
+   sound.Volume = 1.5
+   sound.PlaybackSpeed = 1
+   sound:Play()
+   
+   for _, part in pairs(humanoid.Parent:GetChildren()) do
+         if part:IsA("BasePart") then
+            part.Transparency = 1
+             blood = Instance.new("Part", workspace)
+             blood.Material = part.Material
+             blood.Position = part.Position
+             blood.Color = part.Color
+             blood.Size = part.Size / 2
+             blood.Velocity = char.HumanoidRootPart.CFrame.LookVector * 100
+             game.Debris:AddItem(blood, 10)
+             elseif part:IsA("SpecialMesh") or part:IsA("FaceInstance") or part:IsA("BodyMover") then
+               part:Destroy()
+             elseif part:IsA("MeshPart") then
+               part.TextureID = ""
+            end
+         end
+       end
+     end
    
    for _, part in next, Workspace:GetPartBoundsInRadius(slash.Position, 20) do
-     if part.Anchored == false and not part:IsDescendantOf(game.Players.LocalPlayer.Character) and not part.Parent:FindFirstChildOfClass("Humanoid") and (part.Size.X + part.Size.Y + part.Size.Z) <= 50 then
+     if part.Anchored == false and not part:IsDescendantOf(char) and not part.Parent:FindFirstChildOfClass("Humanoid") and (part.Size.X + part.Size.Y + part.Size.Z) <= 50 and part.Name ~= "Handle" then
        part:BreakJoints()
        part.Velocity = slash.CFrame.LookVector * 250
        part.AssemblyAngularVelocity += Vector3.new(math.random(0, 50), math.random(0, 50), math.random(0, 50))
@@ -436,4 +468,5 @@ local tween = game:GetService("TweenService"):Create(col, TweenInfo.new(0.7, Enu
   })
 tween:Play()
     end
+  end
  end)
