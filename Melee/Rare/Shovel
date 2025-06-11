@@ -1,0 +1,63 @@
+local player = game.Players.LocalPlayer
+local tool = Instance.new("Tool", player:WaitForChild("Backpack"))
+tool.Name = "Shovel"
+tool.Grip = CFrame.new(0, -1.6, 0)
+tool.ToolTip = ""
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://4709072574"
+mesh.TextureId = "rbxassetid://4709072619"
+mesh.Scale = Vector3.new(0.1, 0.1, 0.1)
+
+local anim = Instance.new("Animation", game.Players.LocalPlayer.Character)
+anim.AnimationId = "rbxassetid://317460113"
+anim.Name = "HoldAnimation"
+local hen = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(anim)
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+local currentTime = tick()
+     if currentTime - lastPressTime >= 1 then
+         lastPressTime = currentTime
+local anim = Instance.new("Animation", game.Players.LocalPlayer.Character)
+anim.AnimationId = "rbxassetid://209875013"
+anim.Name = "SwingAnimation"
+game.Debris:AddItem(anim, 8)
+local he = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(anim)
+he:AdjustSpeed(1.5)
+he:Play()
+hen:Stop()
+
+task.delay(0.45, function()
+  hen:Play()
+end)
+
+  task.wait(0.2)
+local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(handle.Position, 6) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+      for _, humanoid in next, humanoids do
+        humanoid:TakeDamage(15)
+        if math.random(1, 8) == 1 and (humanoid.Parent:FindFirstChild("StatsInfo") and humanoid.Parent.StatsInfo.CanBeStunned.Value == true) or not humanoid.Parent:FindFirstChild("StatsInfo") then
+          humanoid:ChangeState("FallingDown")
+        end
+      end
+    end
+end)
+
+tool.Equipped:Connect(function()
+  hen:Play()
+end)
+
+tool.Unequipped:Connect(function()
+  hen:Stop()
+end)
