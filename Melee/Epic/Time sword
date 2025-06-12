@@ -1,0 +1,117 @@
+local player = game.Players.LocalPlayer
+local tool = Instance.new("Tool", player:WaitForChild("Backpack"))
+tool.Name = "Time sword"
+tool.Grip = CFrame.new(0, -2.4, 0) * CFrame.Angles(0, math.rad(180), 0)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://439039467"
+mesh.TextureId = "rbxassetid://439039514"
+mesh.Scale = Vector3.new(0.075, 0.075, 0.075)
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+local currentTime = tick()
+   if currentTime - lastPressTime >= 4 then
+     lastPressTime = currentTime
+local anims = {"74909537", "74909551"}
+local Anim = Instance.new("Animation")
+Anim.AnimationId = "rbxassetid://" .. anims[math.random(1, #anims)]
+local k = player.Character.Humanoid:LoadAnimation(Anim)
+k.Looped = false
+k:Play()
+k:AdjustSpeed(2)
+
+local sound = Instance.new("Sound", handle)
+sound.SoundId = "rbxassetid://45885030"
+sound.Volume = 1.5
+sound.PlaybackSpeed = 1
+sound:Play()
+game.Debris:AddItem(sound, 4)
+
+local ball = Instance.new("Part", Workspace)
+ball.Material = "ForceField"
+ball.Shape = "Ball"
+ball.Size = Vector3.new(1, 1, 1)
+ball.Color = Color3.new(1, 1, 1)
+ball.CanCollide = false
+ball.CanQuery = false
+ball.Position = handle.Position + player.Character.HumanoidRootPart.CFrame.LookVector * 3
+game.Debris:AddItem(ball, 10)
+
+local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(handle.Position, 7) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(player.Character) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+for _, humanoid in next, humanoids do
+   humanoid:TakeDamage(50)
+end
+
+ball.Touched:Connect(function(part)
+  if not part:IsDescendantOf(player.Character) and part.Parent:FindFirstChildOfClass("Humanoid") and part.Parent:GetAttribute("IsStopTimed") == nil then
+    local humanoid = part.Parent:FindFirstChildOfClass("Humanoid")
+    humanoid.Parent:SetAttribute("IsStopTimed", true)
+    
+    task.delay(1, function()
+      humanoid.Parent:SetAttribute("IsStopTimed", nil)
+    end)
+    
+    for _, prt in next, humanoid.Parent:GetDescendants() do
+      if prt:IsA("BasePart") then
+        prt.Anchored = true
+      end
+    end
+  end
+end)
+
+local sptu = {}
+ball.TouchEnded:Connect(function(part)
+  if not part:IsDescendantOf(player.Character) and part.Parent:FindFirstChildOfClass("Humanoid") and part.Parent:GetAttribute("IsStopTimed") ~= nil and not table.find(sptu, part.Parent:FindFirstChildOfClass("Humanoid")) then
+    local humanoid = part.Parent:FindFirstChildOfClass("Humanoid")
+    table.insert(sptu, humanoid)
+    humanoid:TakeDamage(40)
+    humanoid:ChangeState("FallingDown")
+    
+    for _, prt in next, humanoid.Parent:GetDescendants() do
+      if prt:IsA("BasePart") then
+        prt.Anchored = false
+        prt.Velocity = Vector3.zero
+        prt.AssemblyAngularVelocity = Vector3.zero
+      end
+    end
+  end
+end)
+
+local tween = game:GetService("TweenService"):Create(ball, TweenInfo.new(0.55, Enum.EasingStyle.Sine, Enum.EasingDirection.Out, 0, false, 0), {
+     Size = Vector3.new(13, 13, 13)
+  })
+tween:Play()
+
+local bv = Instance.new("BodyVelocity", ball)
+bv.Velocity = player.Character.HumanoidRootPart.CFrame.LookVector * 10
+bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+
+task.delay(7.5, function()
+  local tween = game:GetService("TweenService"):Create(ball, TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, false, 0), {
+     Transparency = 1
+   })
+  tween:Play()
+  local tween = game:GetService("TweenService"):Create(bv, TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, false, 0), {
+     Velocity = Vector3.new(0, 0, 0)
+    })
+  tween:Play()
+end)
+
+local tween = game:GetService("TweenService"):Create(bv, TweenInfo.new(1.1, Enum.EasingStyle.Sine, Enum.EasingDirection.Out, 0, false, 0), {
+     Velocity = bv.Velocity * 15
+  })
+tween:Play()
+   end
+end)
