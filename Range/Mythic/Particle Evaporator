@@ -1,0 +1,128 @@
+        local player = game.Players.LocalPlayer
+        local tool = Instance.new("Tool", player:WaitForChild("Backpack"))
+        tool.Name = "Particle Evaporator" 
+        tool.ToolTip = "Particle Evaporator"
+        tool.Grip = CFrame.new(0, -0.3, 0.55)
+        
+        local handle = Instance.new("Part", tool)
+        handle.Name = "Handle"
+        handle.Material = "ForceField"
+        handle.Color = Color3.new(0, 1, 0)
+        
+        local mesh = Instance.new("SpecialMesh", handle)
+        mesh.MeshId = "rbxassetid://85771489"
+        mesh.TextureId = "rbxassetid://85884363"
+        mesh.Scale = Vector3.new(1, 1, 1)
+        
+        local lastPressTime = 0
+        tool.Activated:Connect(function()
+            local currentTime = tick()
+            if currentTime - lastPressTime >= 3 then
+                lastPressTime = currentTime
+                    local pos = game.Players.LocalPlayer:GetMouse().Hit.Position
+                    local muzzle = handle.Position + player.Character.HumanoidRootPart.CFrame.LookVector * 3.5
+                    
+                    local shoot = Instance.new("Part", Workspace)
+                    shoot.Material = "ForceField"
+                    shoot.Shape = "Ball"
+                    shoot.CanCollide = false
+                    shoot.CanTouch = false
+                    shoot.CanQuery = false
+                    shoot.Color = Color3.new(0, 0.8, 0)
+                    shoot.Size = Vector3.new(20, 20, 20)
+                    shoot.Position = pos
+                    shoot.Anchored = true
+                    game.Debris:AddItem(shoot, 5)
+                    
+                    local field = shoot:Clone()
+                    field.Parent = handle
+                    field.Anchored = false
+                    field.Massless = true
+                    field.Size = Vector3.zero
+                    game.Debris:AddItem(field, 7)
+                    
+                    local field_joint = Instance.new("Weld", field)
+                    field_joint.Part0 = field
+                    field_joint.Part1 = handle
+                    field_joint.C0 = CFrame.new(muzzle)
+                    
+                    local tween = game:GetService("TweenService"):Create(field, TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, false, 0), {
+                    Size = Vector3.new(3.5, 3.5, 3.5),
+                    Color = Color3.new(0, 0, 0),
+                    Transparency = 1
+                    })
+                    tween:Play()
+                    
+                    local line = Instance.new("Part", Workspace)
+                    line.Position = muzzle
+                    line.Color = Color3.new(0.6, 0.8, 0.6)
+                    line.Size = Vector3.new(2, 2, (muzzle - shoot.Position).Magnitude)
+                    line.CFrame = CFrame.lookAt(muzzle, shoot.Position) * CFrame.new(0, 0, -(muzzle - shoot.Position).Magnitude / 2)
+                    line.Material = "Neon"
+                    line.Anchored = true
+                    line.CanTouch = false
+                    line.CanCollide = false
+                    line.CanQuery = false
+                    game.Debris:AddItem(shoot, 3)
+                    
+                    local tween = game:GetService("TweenService"):Create(shoot, TweenInfo.new(0.55, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, false, 0), {
+                    Size = Vector3.zero,
+                    Color = Color3.new(0, 0, 0)
+                    })
+                    tween:Play()
+                    
+                    local tween = game:GetService("TweenService"):Create(line, TweenInfo.new(0.55, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, false, 0), {
+                    Size = Vector3.new(0, 0, (muzzle - shoot.Position).Magnitude)
+                    })
+                    tween:Play()
+                    
+                    tween.Completed:Connect(function()
+                        line:Destroy()
+                    end)
+                    
+                    local sound = Instance.new("Sound", shoot)
+                    sound.SoundId = "rbxassetid://4474746611"
+                    sound.Volume = 1
+                    sound.PlaybackSpeed = 1
+                    sound:Play()
+                    
+                    local light = Instance.new("PointLight", shoot)
+                    light.Range = shoot.Size.X * 1.5
+                    light.Brightness = 1
+                    light.Color = Color3.new(0, 1, 0)
+                    game.Debris:AddItem(light, 0.9)
+                    
+                    shoot:GetPropertyChangedSignal("Size"):Connect(function()
+                        light.Range = shoot.Size.X * 1.5
+                        light.Brightness = shoot.Size.X / 20
+                    end)
+                    
+                    local explosion = shoot:Clone()
+                    explosion.Size = Vector3.zero
+                    explosion.Parent = shoot
+                    
+                    local humanoids = {}
+                    for _, part in next, workspace:GetPartBoundsInRadius(shoot.Position, 35) do
+                        if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(player.Character) and not (game.Players:GetPlayerFromCharacter(part.Parent) and game.Players:GetPlayerFromCharacter(part.Parent).Team == player.Team) then
+                            if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+                                table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+                            end
+                        end
+                    end
+                    
+                    for _, humanoid in next, humanoids do
+                        humanoid:TakeDamage(80)
+                        for _, part in next, humanoid.Parent:GetChildren() do
+                            if part:IsA("BasePart") and part.Anchored == false then
+                                part.Velocity = (shoot.Position - part.Position).Unit * -50
+                            end
+                        end
+                    end
+                    
+                    local tween = game:GetService("TweenService"):Create(explosion, TweenInfo.new(1.35, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, false, 0), {
+                    Size = Vector3.new(40, 40, 40),
+                    Transparency = 1
+                    })
+                    tween:Play()
+            end
+         end)
