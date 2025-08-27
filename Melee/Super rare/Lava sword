@@ -1,0 +1,69 @@
+local player = game.Players.LocalPlayer
+local tool = Instance.new("Tool", player:WaitForChild("Backpack"))
+tool.Name = "Lava Sword"
+tool.Grip = CFrame.new(0, 0, -1.75) * CFrame.Angles(math.rad(90), math.rad(90), math.rad(0))
+
+local handle = Instance.new("Part", tool)
+handle.Color = Color3.new(1, 0, 0)
+handle.Material = "CrackedLava"
+handle.Name = "Handle"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxasset://fonts/sword.mesh"
+mesh.TextureId = "rbxassetid://12890120017"
+mesh.Scale = Vector3.new(1, 1, 1)
+
+local lastPressTime = 0
+local lastShoot = 0
+tool.Activated:Connect(function()
+local currentTime = tick()
+     if currentTime - lastPressTime >= 1 then
+          lastPressTime = currentTime
+   local anims, owner = {"186934658", "186934753"}, tool.Parent
+   local anim = Instance.new("Animation", owner)
+   anim.AnimationId = "rbxassetid://" .. anims[math.random(1, #anims)]
+   anim.Name = "SlashAnimation"
+   local he = owner.Humanoid:LoadAnimation(anim)
+   he:Play()
+   he:AdjustSpeed(1.5)
+   game.Debris:AddItem(anim, 10)
+   
+   local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(handle.Position, 6.5) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(owner) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+     for _, humanoid in next, humanoids do
+       humanoid:TakeDamage(35)
+       if humanoid.Health <= 0 and humanoid:GetStateEnabled("Dead") == true then
+         for _, part in next, humanoid.Parent:GetDescendants() do
+           if part:IsA("BasePart") then
+             part.Color = Color3.new(0, 0, 0)
+             elseif part:IsA("SpecialMesh") then
+             part.TextureId = ""
+             elseif part:IsA("Accessory") and part:FindFirstChild("Handle") then
+             part.Handle.Color = Color3.new(0, 0, 0)
+           end
+         end
+       end
+       
+       if math.random(1, 8) == 8 and not humanoid.RootPart:FindFirstChild("LavaSword_Fire") then
+         local fire = Instance.new("Fire", humanoid.RootPart)
+         fire.Name = "LavaSword_Fire"
+         fire.Size = 7
+         fire.Heat = 0
+         game.Debris:AddItem(fire, 5)
+         
+         task.spawn(function()
+           for _ = 1, 25 do task.wait(0.2)
+             humanoid:TakeDamage(0.4)
+           end
+         end)
+       end
+     end
+   end
+end)
