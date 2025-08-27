@@ -1,0 +1,70 @@
+local player = game.Players.LocalPlayer
+local tool = Instance.new("Tool", player:WaitForChild("Backpack"))
+tool.Name = "Antimonster sword"
+tool.ToolTip = ""
+tool.Grip = CFrame.new(0, -3.5, 0) * CFrame.Angles(math.rad(90), math.rad(-90), math.rad(90))
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+handle.Size = Vector3.zero
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://1215019205"
+mesh.TextureId = "rbxassetid://1215019216"
+mesh.Scale = Vector3.new(0.75, 0.75, 0.75)
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+local currentTime = tick()
+    if currentTime - lastPressTime >= 1 then
+         lastPressTime = currentTime
+local anims, owner = {"74909537", "74909551"}, tool.Parent
+local Anim = Instance.new("Animation")
+Anim.AnimationId = "rbxassetid://" .. anims[math.random(1, #anims)]
+local k = owner.Humanoid:LoadAnimation(Anim)
+k.Looped = false
+k:Play()
+k:AdjustSpeed(3.25)
+
+local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(tool.Handle.Position, 15) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(owner) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+for _, humanoid in next, humanoids do
+humanoid:TakeDamage(75)
+  if humanoid.RootPart.Health > 0 then
+    humanoid.RootPart.Velocity += owner.HumanoidRootPart.CFrame.LookVector * 150
+  end
+  
+  if humanoid.Health <= 0 and humanoid:GetStateEnabled("Dead") == true then
+    local sound = Instance.new("Sound", humanoid.RootPart)
+    sound.SoundId = ((math.random(1, 2) == 1) and "rbxassetid://82176913611683" or "rbxassetid://116489249551000")
+    sound.Volume = 1.25
+    sound:Play()
+    humanoid.BreakJointsOnDeath = false
+    humanoid.Parent:FindFirstChild("Head"):BreakJoints()
+    humanoid.Parent:FindFirstChild("Head").Velocity = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.LookVector * 100
+  end
+end
+
+   local sound = Instance.new("Sound", handle)
+   sound.SoundId = "rbxassetid://7545764969"
+   sound.Volume = 1
+   sound.PlaybackSpeed = 1
+   sound.Looped = false
+   sound:Play()
+   game.Debris:AddItem(sound, 5)
+     end
+end)
+
+tool.Equipped:Connect(function()
+ local owner = tool.Parent
+  owner.Humanoid.WalkSpeed = 33
+    tool.Unequipped:Wait()
+  owner.Humanoid.WalkSpeed = 16
+end)
