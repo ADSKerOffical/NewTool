@@ -1,0 +1,47 @@
+local player = player or game.Players.LocalPlayer
+local tool = Instance.new("Tool", player:WaitForChild("Backpack"))
+tool.Name = "Reflection"
+tool.RequiresHandle = false
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+local currentTime = tick()
+   if currentTime - lastPressTime >= 30 then
+      lastPressTime = currentTime
+local owner, health = tool.Parent, tool.Parent.Humanoid.Health
+owner.Archivable = true
+
+local voice = owner:Clone()
+  for _, part in next, voice:GetDescendants() do
+    if part:IsA("BasePart") then
+      part.Transparency = 0.5
+    end
+  end
+voice.Humanoid:SetStateEnabled("Dead", true)
+voice.Parent = workspace
+
+coroutine.wrap(function()
+  repeat task.wait()
+    voice.Humanoid:MoveTo(owner.HumanoidRootPart.Position + Vector3.new(0, 0, -6))
+  until not voice
+end)()
+
+   local previousHealth = owner.Humanoid.Health
+   local conne = owner.Humanoid.HealthChanged:Connect(function(newHealth)
+       if newHealth < previousHealth then
+          owner.Humanoid.Health = health
+          voice.Humanoid.Health -= previousHealth - newHealth
+       end
+       previousHealth = newHealth
+     end)
+     
+     voice.Humanoid.Died:Connect(function()
+       conne:Disconnect()
+       game.Debris:AddItem(voice, 2)
+     end)
+     
+     voice.Destroying:Connect(function()
+       conne:Disconnect()
+     end)
+   end
+end)
