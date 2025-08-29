@@ -1,0 +1,37 @@
+local player = player or game.Players.LocalPlayer
+local tool = Instance.new("Tool", player:WaitForChild("Backpack"))
+tool.Name = "Force field"
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+handle.Material = "Neon"
+handle.Transparency = 0.5
+handle.Color = Color3.new(0, 0, 1)
+handle.Shape = "Ball"
+handle.Size = Vector3.new(1.5, 1.5, 1.5)
+
+local core = Instance.new("Attachment", handle)
+core.Position = Vector3.new(0, 0, 0)
+
+local particle = Instance.new("ParticleEmitter", core)
+particle.Shape = "Sphere"
+particle.Rate = 200
+particle.Texture = "rbxassetid://8451174579"
+particle.Color = ColorSequence.new(Color3.new(0, 0, 0), Color3.new(0, 0, 0))
+particle.Lifetime = NumberRange.new(0.2, 0.2)
+particle.Size = NumberSequence.new(0.9, 0.9)
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+local currentTime = tick()
+   if currentTime - lastPressTime >= 10 then
+        lastPressTime = currentTime
+local ff = Instance.new("ForceField", tool.Parent)
+game.Debris:AddItem(ff, 5)
+
+local sound = Instance.new("Sound", ff.Parent.HumanoidRootPart)
+sound.SoundId = "rbxassetid://78943758493009"
+sound:Play()
+game.Debris:AddItem(sound, 5)
+   end
+end)
