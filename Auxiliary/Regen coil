@@ -1,0 +1,23 @@
+local player = player or game.Players.LocalPlayer
+local tool = Instance.new("Tool", player:WaitForChild("Backpack"))
+tool.Name = "Regen coil"
+tool.GripPos = Vector3.new(0, 0, -0.3)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+handle.Size = Vector3.zero
+handle.BrickColor = BrickColor.new(Color3.new(0, 0.8, 0))
+handle.Material = "SmoothPlastic"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://16606212"
+mesh.Scale = Vector3.new(0.7, 0.7, 0.7)
+
+tool.Equipped:Connect(function()
+  local owner = tool.Parent
+  repeat task.wait(0.5)
+    if tool.Parent == owner then
+      owner.Humanoid.Health += 2.5
+    end
+  until not tool or tool.Parent ~= owner
+end)
