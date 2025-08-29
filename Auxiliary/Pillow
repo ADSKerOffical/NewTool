@@ -1,0 +1,49 @@
+local player = player or game.Players.LocalPlayer
+local tool = Instance.new("Tool", player:WaitForChild("Backpack"))
+tool.Name = "Pillow"
+tool.Grip = CFrame.new(0, -0.25, 1.5) * CFrame.Angles(math.rad(90), 0, math.rad(90))
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+handle:SetAttribute("CanKnockback", false)
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://12329467039"
+mesh.TextureId = "rbxassetid://12329467319"
+mesh.Scale = Vector3.new(1.25, 1.25, 1.25)
+
+handle.Touched:Connect(function(hit)
+  if hit.Parent:FindFirstChildOfClass("Humanoid") and not hit:IsDescendantOf(tool.Parent) and handle:GetAttribute("CanKnockback") == true then
+    local humanoid = hit.Parent:FindFirstChildOfClass("Humanoid")
+    humanoid.RootPart.AssemblyLinearVelocity = (humanoid.RootPart.Position - handle.Position).Unit * 200
+  end
+end)
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+local currentTime = tick()
+   if currentTime - lastPressTime >= 5 then
+        lastPressTime = currentTime
+    handle:SetAttribute("CanKnockback", true)
+  
+    local bv = Instance.new("BodyVelocity", tool.Parent.HumanoidRootPart)
+    bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+    bv.Velocity = tool.Parent.HumanoidRootPart.CFrame.LookVector * 100
+    game.Debris:AddItem(bv, 0.5)
+  
+    bv.Destroying:Connect(function()
+      handle:SetAttribute("CanKnockback", false)
+    end)
+  end
+end)
+
+tool.Equipped:Connect(function()
+  local Anim = Instance.new("Animation")
+  Anim.AnimationId = "rbxassetid://223623937"
+  Anim.Name = "WarHammer_IdleAnimation"
+  local k = tool.Parent.Humanoid:LoadAnimation(Anim)
+  k:Play()
+  k:AdjustSpeed(1)
+    tool.Unequipped:Wait()
+  k:Stop()
+end)
