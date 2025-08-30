@@ -1,0 +1,93 @@
+local player = player or game.Players.LocalPlayer
+local tool = Instance.new("Tool", player:WaitForChild("Backpack"))
+tool.Name = "Rainbow coil"
+tool.GripPos = Vector3.new(0, 0, -0.3)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+handle.Size = Vector3.new(0.5, 0.5, 2)
+handle.Color = Color3.new(0.5, 0, 0.5)
+handle.Material = "Neon"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://16606212"
+mesh.TextureId = "rbxassetid://6265371541"
+mesh.Scale = Vector3.new(0.7, 0.7, 0.7)
+
+local particle = Instance.new("ParticleEmitter", handle)
+particle.Texture = "https://www.roblox.com/asset-thumbnail/image?assetId=14943848414&width=432&height=432&format=png"
+particle.Rate = 100
+particle.LockedToPart = true
+particle.Lifetime = NumberRange.new(0.3, 0.3)
+particle.Size = NumberSequence.new(0.6, 0)
+particle.Speed = NumberRange.new(0, 0)
+particle.Transparency = NumberSequence.new(0, 0.25, 1)
+particle.SpreadAngle = Vector2.new(-360, 360)
+particle.Shape = "Sphere"
+
+tool.Equipped:Connect(function()
+ local owner = tool.Parent
+local sound = Instance.new("Sound", handle)
+sound.SoundId = "rbxassetid://99173388"
+sound.Volume = 2
+sound.PlaybackSpeed = 1
+sound.Looped = false
+sound:Play()
+game.Debris:AddItem(sound, 4)
+
+local sg = owner.Humanoid.FreeFalling:Connect(function()
+  repeat task.wait() until owner.Humanoid:GetState() == Enum.HumanoidStateType.Landed
+  
+  local explosion = Instance.new("Part", workspace)
+  explosion.CanCollide = false
+  explosion.CanQuery = false
+  explosion.Color = Color3.new(math.random(0, 1), math.random(0, 1), math.random(0, 1))
+  explosion.Size = Vector3.zero
+  explosion.Material = "Neon"
+  explosion.Shape = "Ball"
+  explosion.Position = owner.HumanoidRootPart.Position - Vector3.new(0, -2, 0)
+  explosion.Anchored = true
+  game.Debris:AddItem(explosion, 5)
+  
+  local sound = Instance.new("Sound", explosion)
+  sound.SoundId = "rbxassetid://3802270141"
+  sound:Play()
+  
+  local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(explosion.Position, 30) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(owner) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+  for _, humanoid in next, humanoids do
+    humanoid:TakeDamage(20)
+    humanoid.RootPart.AssemblyLinearVelocity = (explosion.Position - humanoid.RootPart.Position).Unit * -130
+    humanoid.Sit = true
+  end
+  
+  game:GetService("TweenService"):Create(explosion, TweenInfo.new(0.7, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out, 0, false, 0), {
+     Size = Vector3.new(40, 40, 40),
+     Transparency = 1,
+     Color = Color3.new(0, 0, 0)
+  }):Play()
+end)
+
+task.spawn(function()
+  repeat task.wait(0.2)
+    if tool.Parent == owner then
+      owner.Humanoid.Health += 5
+    end
+  until not tool or tool.Parent ~= owner
+end)
+
+ owner.Humanoid.UseJumpPower = true
+ owner.Humanoid.JumpPower = 120
+ owner.Humanoid.WalkSpeed = 120
+   tool.Unequipped:Wait()
+ owner.Humanoid.JumpPower = 50
+ owner.Humanoid.WalkSpeed = 16
+ sg:Disconnect()
+end)
