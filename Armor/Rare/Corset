@@ -1,0 +1,50 @@
+local player = player or game.Players.LocalPlayer
+local tool = Instance.new("Tool", player:WaitForChild("Backpack"))
+tool.Name = "Corset"
+tool.GripPos = Vector3.new(0, 0, -0.3)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+handle.Size = Vector3.zero
+handle.Material = "SmoothPlastic"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://2042636932"
+mesh.Scale = Vector3.new(0.7, 0.7, 0.7)
+
+tool.Activated:Connect(function()
+  local owner = tool.Parent
+  local part = handle:Clone()
+  part.Parent = owner.HumanoidRootPart
+  owner.Humanoid.MaxHealth += 50
+  owner.Humanoid.Health += 50
+  tool:Destroy()
+  
+  local weld = Instance.new("Weld", part)
+  weld.Part0 = part
+  weld.Part1 = owner.HumanoidRootPart
+  weld.C0 = CFrame.new(0, 0, 0)
+  
+  part.Destroying:Connect(function()
+    owner.Humanoid.MaxHealth -= 50
+  end)
+  
+  local info = Instance.new("Folder", part)
+  info.Name = "HatInfo"
+ 
+  local info_Owner = Instance.new("ObjectValue", info)
+  info_Owner.Name = "Owner"
+  info_Owner.Value = game.Players:GetPlayerFromCharacter(owner)
+ 
+  local info_Rarity = Instance.new("StringValue", info)
+  info_Rarity.Name = "Rarity"
+  info_Rarity.Value = "Rare"
+ 
+  local info_Name = Instance.new("StringValue", info)
+  info_Name.Name = "Name"
+  info_Name.Value = "Corset" 
+ 
+  local info_Group = Instance.new("StringValue", info)
+  info_Group.Name = "Group"
+  info_Group.Value = "None" 
+end)
