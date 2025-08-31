@@ -1,6 +1,6 @@
 local player = player or game.Players.LocalPlayer
 local tool = Instance.new("Tool", player:WaitForChild("Backpack"))
-tool.Name = "Immobility core" 
+tool.Name = "Immobility Core" 
 tool.ToolTip = "Removes everything body movers from all nearby objects"
 
 local handle = Instance.new("Part", tool)
@@ -35,8 +35,14 @@ tool.Equipped:Connect(function()
         for _, bm in next, part:GetChildren() do
           if bm:IsA("BodyMover") then
             bm:Destroy()
+          elseif bm:IsA("TweenBase") then
+            bm:Cancel()
           end
         end
+        
+        part.Velocity = Vector3.zero
+        part.AssemblyLinearVelocity = Vector3.zero
+        part.AssemblyAngularVelocity = Vector3.zero
         
         local sound = Instance.new("Sound", handle)
         sound.SoundId = "rbxassetid://126117582247178"
