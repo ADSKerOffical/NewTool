@@ -1,0 +1,75 @@
+local player = player or game.Players.LocalPlayer
+local tool = Instance.new("Tool", player:WaitForChild("Backpack"))
+tool.Name = "Immobility core" 
+tool.ToolTip = "Removes everything body movers from all nearby objects"
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+handle.Size = Vector3.new(1.5, 1.5, 1.5)
+handle.BrickColor = BrickColor.new(Color3.new(0.1, 0, 0.1))
+handle.Shape = "Ball"
+handle.Material = "SmoothPlastic"
+
+local loop = Instance.new("Sound", handle)
+loop.SoundId = "rbxassetid://112878221721234"
+loop.Looped = true
+
+local core = Instance.new("Attachment", handle)
+
+local particle = Instance.new("ParticleEmitter", core)
+particle.Texture = "https://www.roblox.com/asset-thumbnail/image?assetId=3403074586&width=432&height=432&format=png"
+particle.Size = NumberSequence.new(1.1, 1.1)
+particle.Speed = NumberRange.new(0, 0)
+particle.LockedToPart = true
+particle.RotSpeed = NumberRange.new(-360, 360)
+particle.Lifetime = NumberRange.new(1, 1)
+particle.Shape = "Sphere"
+particle.Rate = 25
+
+tool.Equipped:Connect(function()
+  local owner = tool.Parent
+  loop.Playing = true
+  repeat task.wait(0.075)
+    for _, part in next, workspace:GetPartBoundsInRadius(handle.Position, 30) do
+      if part.Anchored == false and part:FindFirstChildWhichIsA("BodyMover") then
+        for _, bm in next, part:GetChildren() do
+          if bm:IsA("BodyMover") then
+            bm:Destroy()
+          end
+        end
+        
+        local sound = Instance.new("Sound", handle)
+        sound.SoundId = "rbxassetid://126117582247178"
+        sound:Play()
+        game.Debris:AddItem(sound, 5)
+        
+        local shoot = Instance.new("Part", workspace)
+        shoot.Anchored = true
+        shoot.CanCollide = false
+        shoot.CanTouch = false
+        shoot.CanQuery = false
+        shoot.Transparency = 1
+        shoot.Position = handle.Position
+        shoot.Size = Vector3.new(1, 1, (handle.Position - part.Position).Magnitude)
+        shoot.CFrame = CFrame.lookAt(handle.Position, part.Position) * CFrame.new(0, 0, -(handle.Position - part.Position).Magnitude / 2)
+        game.Debris:AddItem(shoot, 5)
+        
+        local orbs = Instance.new("ParticleEmitter", shoot)
+        orbs.Enabled = false
+        orbs.Lifetime = NumberRange.new(0.5, 0.5)
+        orbs.Speed = NumberRange.new(0, 0)
+        orbs.Texture = particle.Texture
+        orbs.Size = NumberSequence.new(0, 1)
+        orbs.RotSpeed = NumberRange.new(-360, 360)
+        orbs.Transparency = NumberSequence.new(0, 1)
+        orbs.Shape = "Sphere"
+        orbs:Emit(20)
+        game.Debris:AddItem(orbs, 3)
+      end
+    end
+  until not tool or not handle or tool.Parent ~= owner
+end)
+
+tool.Unequipped:Connect(function()
+  loop.Playing = false
+end)
