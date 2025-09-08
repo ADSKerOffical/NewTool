@@ -1,0 +1,104 @@
+local player = game.Players.LocalPlayer
+local tool = Instance.new("Tool", player:WaitForChild("Backpack"))
+tool.Name = "Ball lightning"
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+handle.Shape = "Ball"
+handle.Material = "Neon"
+handle.Size = Vector3.new(1.5, 1.5, 1.5)
+handle.Color = Color3.new(1, 1, 1)
+
+local core = Instance.new("Attachment", handle)
+
+local light = Instance.new("PointLight", handle)
+light.Brightness = 10
+light.Range = 3
+
+local light2 = Instance.new("ParticleEmitter", core)
+light2.Texture = "rbxassetid://96766676523858"
+light2.Rate = 1000
+light2.LockedToPart = true
+light2.Speed = NumberRange.new(0, 0)
+light2.RotSpeed = NumberRange.new(-720, 720)
+light2.Size = NumberSequence.new(0.9, 0.9)
+light2.Rotation = NumberRange.new(-360, 360)
+light2.Lifetime = NumberRange.new(0.1, 0.1)
+
+local particle = Instance.new("ParticleEmitter", core)
+particle.Texture = "https://www.roblox.com/asset-thumbnail/image?assetId=241779221&width=432&height=432&format=png"
+particle.Size = NumberSequence.new(1.3, 1.3)
+particle.Speed = NumberRange.new(0, 0)
+particle.LockedToPart = true
+particle.RotSpeed = NumberRange.new(-360, 360)
+particle.Lifetime = NumberRange.new(1, 1)
+particle.Shape = "Sphere"
+particle.Rate = 25
+
+local lops = Instance.new("Sound", handle)
+lops.SoundId = "rbxassetid://9067167701"
+lops.Volume = 0.25
+lops.RollOffMaxDistance = 300
+lops.Looped = true
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+local currentTime = tick()
+    if currentTime - lastPressTime >= 10 then
+       lastPressTime = currentTime
+     local ball, owner = handle:Clone(), tool.Parent
+     local newlight = ball:FindFirstChildWhichIsA("PointLight")
+     
+     ball.CanTouch = true
+     ball.Anchored = true
+     ball.Parent = game.Workspace
+     game.Debris:AddItem(ball, 30)
+     
+     game:GetService("TweenService"):Create(ball, TweenInfo.new(20, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0), {
+        Position = ball.Position + owner.HumanoidRootPart.CFrame.LookVector * 200
+      }):Play()
+     
+     ball.Touched:Connect(function(part)
+       if not part:IsDescendantOf(owner) and part.Parent:FindFirstChildWhichIsA("Humanoid") then
+         local humanoid = part.Parent:FindFirstChildWhichIsA("Humanoid")
+         humanoid.Sit = true
+       end
+     end)
+     
+     coroutine.wrap(function()
+       repeat task.wait(0.75)
+         local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(ball.Position, 15) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(owner) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+        for _, humanoid in next, humanoids do
+           humanoid:TakeDamage(5)
+        end
+       until not ball
+     end)()
+     
+     coroutine.wrap(function()
+       repeat task.wait()
+         local tween = game:GetService("TweenService"):Create(newlight, TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, true, 0), {
+             Range = 10,
+             Brightness = 3
+          })
+         tween:Play()
+         tween.Completed:Wait()
+       until not ball or not newlight
+     end)()
+    end
+end)
+
+tool.Equipped:Connect(function()
+  lops.Playing = true
+end)
+
+tool.Unequipped:Connect(function()
+  lops.Playing = false
+end)
