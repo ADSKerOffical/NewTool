@@ -1,0 +1,118 @@
+local player = player or game.Players.LocalPlayer
+local tool = Instance.new("Tool", player:WaitForChild("Backpack"))
+tool.Name = "Bugged sword"
+tool.ToolTip = ""
+tool.RequiresHandle = false
+tool.CanBeDropped = false
+tool.Grip = CFrame.new(0, -2, 0) * CFrame.Angles(0, math.rad(90), 0)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://6922670527"
+mesh.TextureId = "rbxassetid://6922670580"
+mesh.Scale = Vector3.new(0.1, 0.1, 0.1)
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+  local currentTime = tick()
+      if currentTime - lastPressTime >= 5 then
+         lastPressTime = currentTime 
+local anims, owner = {"74909537", "74909551"}, tool.Parent
+local Anim = Instance.new("Animation")
+Anim.AnimationId = "rbxassetid://" .. anims[math.random(1, #anims)]
+local k = owner.Humanoid:LoadAnimation(Anim)
+k.Looped = false
+k:Play()
+k:AdjustSpeed(2)
+pcall(function() game.Players.LocalPlayer.SimulationRadius = math.huge end)
+
+local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(handle.Position, 10) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+for _, humanoid in next, humanoids do
+   humanoid:TakeDamage(100)
+   humanoid.RootPart.AssemblyLinearVelocity += owner.HumanoidRootPart.CFrame.LookVector * 100
+end
+
+local sound = Instance.new("Sound", handle)
+sound.SoundId = "rbxassetid://3359047385"
+sound:Play()
+game.Debris:AddItem(sound, 5)
+
+local wall = Instance.new("Part", workspace)
+wall.Material = "ForceField"
+wall.CanCollide = false
+wall.Anchored = true
+wall.Color = Color3.new(0, 1, 0)
+wall.Size = Vector3.new(15, 12, 0.1)
+wall.CFrame = owner.HumanoidRootPart.CFrame * CFrame.new(0, 4, -4)
+game.Debris:AddItem(wall, 2.5)
+
+for _, side in next, Enum.NormalId:GetEnumItems() do
+  local decal = Instance.new("Decal", wall)
+  decal.Texture = "rbxassetid://6922670580"
+  decal.Face = side
+end
+
+wall.Touched:Connect(function(hit)
+local humano = hit.Parent:FindFirstChildOfClass("Humanoid")
+  if humano and not humano:IsDescendantOf(owner) and humano:GetAttribute("Bugged") == nil then
+    humano:SetAttribute("Bugged", true)
+    humano:TakeDamage(10)
+    humano:ChangeState("FalligDown", true)
+    local maxh = humano.MaxHealth
+    
+    local sound = Instance.new("Sound", humano.RootPart)
+    sound.SoundId = "rbxassetid://139682612041479"
+    sound.Volume = 0.3
+    sound:Play()
+    game.Debris:AddItem(sound, 5)
+    
+    local a1 = humano.Changed:Connect(function(prop)
+      if prop == "PlatformStand" and humano.PlatformStand == false then
+        humano.PlatformStand = true
+      elseif prop == "Sit" and humano.Sit == false then
+        humano.Sit = true
+      elseif prop == "MaxHealth" and humano.MaxHealth > maxh then
+        humano.MaxHealth = humano.MaxHealth - (humano.MaxHealth - maxh)
+      end
+    end)
+    
+    task.delay(10, function()
+      a1:Disconnect()
+      humano:SetAttribute("Bugged", nil)
+    end)
+  end
+end)
+
+local partTweenn2 = game:GetService("TweenService"):Create(wall, TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, false, 0), {
+        Position = wall.Position + owner.HumanoidRootPart.CFrame.LookVector * 200
+    })
+    partTweenn2:Play()
+ partTweenn2.Completed:Connect(function()
+wall:Destroy()
+ end)
+      end
+end)
+
+task.spawn(function()
+ local function randomtext()
+   local length, array = math.random(5, 80), {}
+   for i = 1, length do
+    array[i] = string.char(math.random(32, 126))
+   end
+   return table.concat(array)
+ end
+ 
+  repeat task.wait()
+    tool.ToolTip = randomtext()
+  until not tool
+end)
