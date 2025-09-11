@@ -1,0 +1,135 @@
+local player = player or game.Players.LocalPlayer
+local tool = Instance.new("Tool", player:WaitForChild("Backpack"))
+tool.Name = "VZLOM"
+tool.ToolTip = ""
+tool.RequiresHandle = false
+tool.CanBeDropped = false
+tool.Grip = CFrame.new(0, -2, 0) * CFrame.Angles(0, math.rad(90), 0)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://6922670527"
+mesh.TextureId = "rbxassetid://8384341"
+mesh.Scale = Vector3.new(0.1, 0.1, 0.1)
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+  local currentTime = tick()
+      if currentTime - lastPressTime >= 0.2 then
+         lastPressTime = currentTime 
+local anims, owner = {"74909537", "74909551"}, tool.Parent
+local Anim = Instance.new("Animation")
+Anim.AnimationId = "rbxassetid://" .. anims[math.random(1, #anims)]
+local k = owner.Humanoid:LoadAnimation(Anim)
+k.Looped = false
+k:Play()
+k:AdjustSpeed(2)
+pcall(function() game.Players.LocalPlayer.SimulationRadius = math.huge end)
+
+local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(handle.Position, 10) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(game.Players.LocalPlayer.Character) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+for _, humanoid in next, humanoids do
+   humanoid:TakeDamage(150)
+   humanoid.RootPart.AssemblyLinearVelocity += owner.HumanoidRootPart.CFrame.LookVector * 100
+end
+
+local sound = Instance.new("Sound", handle)
+sound.SoundId = "rbxassetid://101644004711755"
+sound:Play()
+game.Debris:AddItem(sound, 5)
+
+for i = 1, 8 do
+local wall = Instance.new("Part", workspace)
+wall.Material = "ForceField"
+wall.CanCollide = false
+wall.Anchored = false
+wall.Color = Color3.new(0, 1, 0)
+wall.Size = Vector3.new(15, 12, 0.1)
+wall.CFrame = owner.HumanoidRootPart.CFrame * CFrame.new(0, 4, -4)
+game.Debris:AddItem(wall, 2.5)
+
+for _, side in next, Enum.NormalId:GetEnumItems() do
+  local decal = Instance.new("Decal", wall)
+  decal.Texture = "rbxassetid://8384341"
+  decal.Face = side
+end
+
+local bodyVel, ange = Instance.new("BodyVelocity", wall), math.random(-360, 360)
+bodyVel.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+bodyVel.Velocity = Vector3.new(100 * math.cos(math.rad(ange * i)), 0, 100 * math.sin(math.rad(ange * i)))
+
+wall.Destroying:Connect(function()
+  for i = 1, 4 do
+    local wa, angle = wall:Clone(), math.random(-360, 360)
+    wa.Anchored = false
+    wa.Parent = workspace
+    game.Debris:AddItem(wa, 3)
+    
+    wa.Touched:Connect(function(hit)
+      if not hit:IsDescendantOf(owner) and hit.Parent:FindFirstChildOfClass("Humanoid") then
+        local humanoid = hit.Parent:FindFirstChildOfClass("Humanoid")
+        humanoid:TakeDamage(3)
+        humanoid.RootPart.AssemblyLinearVelocity = (wa.Position - humanoid.RootPart.Position).Unit * -50
+      end
+    end)
+    
+    local bodyVel = Instance.new("BodyVelocity", wa)
+    bodyVel.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+    bodyVel.Velocity = Vector3.new(200 * math.cos(math.rad(angle * i)), 0, 200 * math.sin(math.rad(angle * i)))
+  end
+end)
+
+wall.Touched:Connect(function(hit)
+local humano = hit.Parent:FindFirstChildOfClass("Humanoid")
+  if humano and not humano:IsDescendantOf(owner) then
+    humano:TakeDamage(10)
+    humano:ChangeState("FalligDown", true)
+    local maxh = humano.MaxHealth
+    
+    local sound = Instance.new("Sound", humano.RootPart)
+    sound.SoundId = "rbxassetid://139682612041479"
+    sound.Volume = 0.3
+    sound:Play()
+    game.Debris:AddItem(sound, 5)
+    
+    local a1 = humano.Changed:Connect(function(prop)
+      if prop == "PlatformStand" and humano.PlatformStand == false then
+        humano.PlatformStand = true
+      elseif prop == "Sit" and humano.Sit == false then
+        humano.Sit = true
+      elseif prop == "MaxHealth" and humano.MaxHealth > maxh then
+        humano.MaxHealth = humano.MaxHealth - (humano.MaxHealth - maxh)
+      end
+    end)
+    
+    task.delay(10, function()
+      a1:Disconnect()
+    end)
+  end
+end)
+         end 
+      end
+end)
+
+task.spawn(function()
+ local function randomtext()
+   local length, array = math.random(5, 80), {}
+   for i = 1, length do
+    array[i] = string.char(math.random(32, 126))
+   end
+   return table.concat(array)
+ end
+ 
+  repeat task.wait()
+    tool.ToolTip = randomtext()
+  until not tool
+end)
