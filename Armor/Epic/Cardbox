@@ -1,0 +1,65 @@
+local player = player or game.Players.LocalPlayer or game.Players.ADSKer_man222
+local tool = Instance.new("Tool", player:WaitForChild("Backpack"))
+tool.Name = "Cardbox"
+tool.Grip = CFrame.Angles(math.rad(-180), math.rad(90), 0)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://14437100109"
+mesh.TextureId = "rbxassetid://14437100629"
+mesh.Scale = Vector3.new(2, 2, 2)
+
+tool.Activated:Connect(function()
+  local hat, owner = handle:Clone(), tool.Parent
+  hat.Parent = owner.Head
+  
+  local hat_weld = Instance.new("Weld", hat)
+  hat_weld.Part0 = hat
+  hat_weld.Part1 = owner.Head
+  hat_weld.C0 = CFrame.new(0, 0.75, 0) * CFrame.Angles(math.rad(-180), math.rad(90), 0)
+  tool:Destroy()
+  
+  local beabox = Instance.new("Tool", game.Players:GetPlayerFromCharacter(owner):FindFirstChild("Backpack"))
+  beabox.Name = "Become a box"
+  beabox.RequiresHandle = false
+  beabox.CanBeDropped = false
+  beabox:SetAttribute("Enabled", false)
+  
+  hat.Destroying:Connect(function()
+    beabox:Destroy()
+  end)
+  
+  local lastClick = 0
+  beabox.Activated:Connect(function()
+    if os.clock() - lastClick >= 1 then
+      lastClick, nowhealth = os.clock(), owner.Humanoid.Health
+      beabox:SetAttribute("Enabled", not beabox:GetAttribute("Enabled"))
+      
+      task.spawn(function()
+        local ieh = owner:FindFirstChildWhichIsA("Humanoid").HealthChanged:Connect(function()
+          owner.Humanoid.Health = nowhealth
+        end)
+        repeat task.wait() until beabox:GetAttribute("Enabled") == false or not beabox or not hat
+        ieh:Disconnect()
+      end)
+      
+      for _, part in next, owner:GetDescendants() do
+        if part:IsA("BasePart") and part ~= hat and hat.Parent ~= part.Parent then
+          part.CanCollide = (beabox:GetAttribute("Enabled") == true and false or true)
+         --[[ part.CanTouch = (beabox:GetAttribute("Enabled") == true and false or true)
+          part.CanQuery = ((beabox:GetAttribute("Enabled") == true) and false or true)]]--
+          part.Transparency = (beabox:GetAttribute("Enabled") == true and 1 or 0)
+        end
+      end
+      
+      if beabox:GetAttribute("Enabled") == false then
+        owner.HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(0, 10, 0)
+        owner.Humanoid.PlatformStand = false
+       else
+        owner.Humanoid.PlatformStand = true
+      end
+    end
+  end)
+end)
