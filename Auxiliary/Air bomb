@@ -1,0 +1,84 @@
+local player = player or game.Players.LocalPlayer
+local tool = Instance.new("Tool", player:WaitForChild("Backpack"))
+tool.Name = "Air bomb"
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+handle.Size = Vector3.new(1.5, 1.5, 1.5)
+handle.Shape = "Ball"
+handle.Material = "Concrete"
+
+for _, side in next, Enum.NormalId:GetEnumItems() do
+  local decal = Instance.new("Decal", handle)
+  decal.Texture = "rbxassetid://4754900408"
+  decal.Face = side
+end
+
+tool.Activated:Connect(function()
+  local bomb = handle:Clone()
+  bomb.Anchored = true
+  game.Debris:AddItem(bomb, 4)
+    local light = Instance.new("SurfaceLight", bomb)
+    light.Range = 20
+    light.Brightness = 2
+  bomb.Parent = workspace
+  tool:Destroy()
+  
+ local tween = game:GetService("TweenService"):Create(bomb, TweenInfo.new(1.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0), {
+    CFrame = bomb.CFrame * CFrame.new(0, 3, 0)
+  })
+  tween:Play()
+  tween.Completed:Wait()
+  
+  bomb.Destroying:Connect(function()
+    local explosion = Instance.new("Part", workspace)
+    explosion.Anchored = true
+    explosion.Color = Color3.new(0.5, 0.5, 0.5)
+    explosion.Size = Vector3.zero
+    explosion.Position = bomb.Position
+    explosion.Shape = "Ball"
+    explosion.Material = "Neon"
+    explosion.CanCollide = false
+    explosion.CanTouch = false
+    explosion.CanQuery = false
+    game.Debris:AddItem(explosion, 3)
+    
+    local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(explosion.Position, 30) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+      elseif part.Anchored == false and not part:FindFirstChildOfClass("Humanoid") then
+       if (part.Size.X + part.Size.Y + part.Size.Z) <= 20 then
+         part:BreakJoints()
+       end
+       part.AssemblyLinearVelocity = (bomb.Position - part.Position).Unit * -250
+    end
+  end
+
+    for _, humanoid in next, humanoids do
+      humanoid:TakeDamage(100)
+      humanoid.RootPart.AssemblyLinearVelocity = (bomb.Position - humanoid.RootPart.Position).Unit * -200
+      humanoid.Sit = true
+    end
+    
+    game:GetService("TweenService"):Create(explosion, TweenInfo.new(1, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out, 0, false, 0), {
+      Size = Vector3.new(30, 30, 30),
+      Color = Color3.new(0, 0, 0),
+      Transparency = 1
+    }):Play()
+  end)
+  
+  task.spawn(function()
+    local d = 0
+    repeat task.wait()
+     d = d + 1.5
+      bomb.CFrame = bomb.CFrame * CFrame.Angles(0, math.rad(d), 0)
+    until not bomb
+  end)
+  
+  task.delay(2.5, function()
+    bomb:Destroy()
+  end)
+end)
