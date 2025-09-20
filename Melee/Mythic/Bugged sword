@@ -51,20 +51,35 @@ local wall = Instance.new("Part", workspace)
 wall.Material = "ForceField"
 wall.CanCollide = false
 wall.Anchored = true
+wall.Transparency = 1
 wall.Color = Color3.new(0, 1, 0)
-wall.Size = Vector3.new(15, 12, 0.1)
+wall.Size = Vector3.new(0.1, 0.1, 0.1)
 wall.CFrame = owner.HumanoidRootPart.CFrame * CFrame.new(0, 4, -4)
-game.Debris:AddItem(wall, 2.5)
+game.Debris:AddItem(wall, 4.5)
+
+game:GetService("TweenService"):Create(wall, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0), {
+   Size = Vector3.new(15, 12, 0.1)
+}):Play()
 
 for _, side in next, Enum.NormalId:GetEnumItems() do
   local decal = Instance.new("Decal", wall)
   decal.Texture = "rbxassetid://6922670580"
   decal.Face = side
+  
+  task.delay(3, function()
+    game:GetService("TweenService"):Create(decal, TweenInfo.new(0.7, Enum.EasingStyle.Sine, Enum.EasingDirection.Out, 0, false, 0), {
+      Transparency = 1
+    }):Play()
+  end)
 end
+
+--[[
+  При смерти наверх подбрасываются баг сферы которые при прикосновении взрываются оглушая сущностей и нанося урон
+]]
 
 wall.Touched:Connect(function(hit)
 local humano = hit.Parent:FindFirstChildOfClass("Humanoid")
-  if humano and not humano:IsDescendantOf(owner) and humano:GetAttribute("Bugged") == nil then
+  if humano and not humano:IsDescendantOf(owner) and humano:GetAttribute("Bugged") == nil and humano.Health > 0 then
     humano:SetAttribute("Bugged", true)
     humano:TakeDamage(10)
     humano:ChangeState("FalligDown", true)
@@ -86,6 +101,68 @@ local humano = hit.Parent:FindFirstChildOfClass("Humanoid")
       end
     end)
     
+      for _ = 1, 5 do
+        local ball = Instance.new("Part", workspace)
+        ball.Transparency = 1
+        ball.CanCollide = false
+        ball.Size = Vector3.new(2, 2, 2)
+        ball.Shape = "Ball"
+        ball.Position = humano.RootPart.Position + Vector3.new(math.random(-3, 3), 3, math.random(-3, 3))
+        ball.AssemblyLinearVelocity = (humano.RootPart.Position - ball.Position).Unit * -50
+        ball.Name = "BugSphere"
+        game.Debris:AddItem(ball, 10)
+        
+        local BF = Instance.new("BodyForce", ball)
+        BF.Force = Vector3.new(0, ball:GetMass() * workspace.Gravity * (1 - 0.3), 0)
+        
+        ball.Touched:Connect(function(hit)
+          if not hit:IsDescendantOf(owner) and not hit:IsDescendantOf(humano.Parent) then
+            local explosion = ball:Clone()
+            explosion.CanTouch = false
+            explosion.Transparency = 0
+            explosion.CanQuery = false
+            explosion.Anchored = true
+            explosion.Parent = workspace
+            game.Debris:AddItem(explosion, 5)
+            
+            game:GetService("TweenService"):Create(explosion, TweenInfo.new(0.8, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out, 0, false, 0), {
+              Size = Vector3.new(20, 20, 20),
+              Transparency = 1
+            }):Play()
+            
+            local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(explosion.Position, 15) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(owner) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+           for _, humanoid in next, humanoids do
+             humanoid:TakeDamage(20)
+             humanoid.Sit = true
+             humanoid.RootPart.AssemblyLinearVelocity = (humanoid.RootPart.Position - ball.Position).Unit * 100
+           end
+            
+            for _, dec in next, explosion:GetChildren() do
+              if dec:IsA("Decal") then
+                explosion:GetPropertyChangedSignal("Transparency"):Connect(function()
+                  dec.Transparency = explosion.Transparency
+                end)
+              end
+            end
+            ball:Destroy()
+          end
+        end)
+        
+        for _, side in next, Enum.NormalId:GetEnumItems() do
+          local decal = Instance.new("Decal", ball)
+          decal.Texture = "rbxassetid://6922670580"
+          decal.Face = side
+        end
+      end
+    
     task.delay(10, function()
       a1:Disconnect()
       humano:SetAttribute("Bugged", nil)
@@ -93,13 +170,10 @@ local humano = hit.Parent:FindFirstChildOfClass("Humanoid")
   end
 end)
 
-local partTweenn2 = game:GetService("TweenService"):Create(wall, TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, false, 0), {
+local partTweenn2 = game:GetService("TweenService"):Create(wall, TweenInfo.new(4, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, false, 0), {
         Position = wall.Position + owner.HumanoidRootPart.CFrame.LookVector * 200
     })
-    partTweenn2:Play()
- partTweenn2.Completed:Connect(function()
-wall:Destroy()
- end)
+partTweenn2:Play()
       end
 end)
 
