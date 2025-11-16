@@ -1,0 +1,118 @@
+local player = game.Players.LocalPlayer
+local tool = Instance.new("Tool", player:WaitForChild("Backpack"))
+tool.Name = "Explosive sound grenade"
+tool.ToolTip = "But the schoolchildren\'s speakers are still louder"
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://9552006196"
+mesh.TextureId = "rbxassetid://104516981"
+mesh.Scale = Vector3.new(0.85, 0.85, 0.85)
+
+tool.Activated:Connect(function()
+  local grenade = handle:Clone()
+  grenade.CanCollide = true
+  grenade.Size = Vector3.new(2, 2, 2)
+  grenade.Parent = Workspace
+  grenade.Velocity = player.Character.HumanoidRootPart.CFrame.LookVector * 100
+  game.Debris:AddItem(grenade, 8)
+  tool:Destroy()
+  
+  task.wait(2.5)
+  
+  if grenade then
+    local sound = Instance.new("Sound", grenade)
+    sound.SoundId = "rbxassetid://710518098"
+    sound.PlaybackSpeed = 1
+    sound.Looped = true
+    sound.Volume = 2
+    sound.RollOffMaxDistance = 300
+    sound:Play()
+    game.Debris:AddItem(sound, 3)
+  
+    for i = 1, 24 do task.wait(2 / 16)
+      local explosion = Instance.new("Part", Workspace)
+      explosion.CanTouch = false
+      explosion.CanQuery = false
+      explosion.CanCollide = false
+      explosion.Material = "Neon"
+      explosion.Shape = "Ball"
+      explosion.Anchored = true
+      explosion.Transparency = 0.5
+      explosion.Color = Color3.new(0, 0, 0)
+      explosion.Position = grenade.Position
+      explosion.Size = Vector3.zero
+      game.Debris:AddItem(explosion, 6)
+
+  local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(grenade.Position, 24) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+    for _, humanoid in next, humanoids do
+       humanoid:TakeDamage(2.25)
+         if humanoid.PlatformStand == false then
+           humanoid.PlatformStand = true task.delay(4, function() humanoid.PlatformStand = false end)
+        end
+    end
+      
+      local tween = game:GetService("TweenService"):Create(explosion, TweenInfo.new(0.4, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out, 0, false, 0), {
+           Size = Vector3.new(30, 30, 30),
+           Color = Color3.new(0.9, 0.9, 0.9),
+           Transparency = 1
+        })
+      tween:Play()
+    end
+    
+    local shok = Instance.new("Part", workspace)
+    shok.Position = grenade.Position
+    shok.Anchored = true
+    shok.CanCollide = false
+    shok.CanQuery = false 
+    shok.Transparency = 1
+    game.Debris:AddItem(shok, 3.5)
+    grenade:Destroy()
+    
+    for _, part in next, Workspace:GetPartBoundsInRadius(shok.Position, 40) do
+      if part.Anchored == false and not part.Parent:FindFirstChildOfClass ("Humanoid") and (part.Size.X + part.Size.Y + part.Size.Z) <= 65 then
+        part:BreakJoints()
+        part.Velocity = (shok.Position - part.Position).Unit * -200
+      end
+    end
+    
+    local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(shok.Position, 40) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+    for _, humanoid in next, humanoids do
+       humanoid:TakeDamage(100)
+       humanoid.RootPart.Velocity = (shok.Position - humanoid.RootPart.Position).Unit * -250
+       humanoid:ChangeState("FallingDown")
+    end
+    
+    local sound = Instance.new("Sound", shok)
+    sound.SoundId = "rbxassetid://7818612635"
+    sound.Volume = 2
+    sound.PlaybackSpeed = 1
+    sound.Looped = false
+    sound:Play()
+    
+    local explosion = Instance.new("Explosion", workspace)
+    explosion.Position = shok.Position
+    explosion.BlastRadius = 0
+    explosion.BlastPressure = 0
+    explosion.ExplosionType = Enum.ExplosionType.Craters
+    explosion.TimeScale = 0.3
+  end
+end)
