@@ -1,0 +1,49 @@
+local player = player or game.Players.LocalPlayer
+local tool = Instance.new("Tool", player:WaitForChild("Backpack"))
+tool.Name = "Panacea"
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://2180379205"
+mesh.TextureId = "rbxassetid://2180379231"
+mesh.Scale = Vector3.new(0.25, 0.25, 0.25)
+
+tool.Activated:Connect(function()
+  local owner = tool.Parent
+    tool:Destroy()
+  local particle = Instance.new("ParticleEmitter", owner.HumanoidRootPart)
+  particle.Enabled = false
+  particle.Texture = "https://www.roblox.com/asset-thumbnail/image?assetId=378437962&width=432&height=432&format=png"
+  particle.Speed = NumberRange.new(6, 6)
+  particle.Size = NumberSequence.new(1, 1)
+  particle.Transparency = NumberSequence.new(0, 1)
+  particle.Lifetime = NumberRange.new(3.5, 3.5)
+  particle.SpreadAngle = Vector2.new(-360, 360)
+  particle.Shape = "Sphere"
+  particle:Emit(50)
+  game.Debris:AddItem(particle, 10)
+  
+  local ff = Instance.new("ForceField", owner)
+  game.Debris:AddItem(ff, 10)
+  
+  owner.Humanoid.MaxHealth += 100
+  owner.Humanoid.Health = owner.Humanoid.MaxHealth
+  local ty = owner.Humanoid.StateChanged:Connect(function(old, new)
+    if new == Enum.HumanoidStateType.PlatformStanding then
+      owner.Humanoid.PlatformStand = false
+    elseif new == Enum.HumanoidStateType.FallingDown then
+      owner.Humanoid:ChangeState("GettingUp")
+    end
+  end)
+  
+  task.delay(10, function()
+    ty:Disconnect()
+  end)
+  
+  local sound = Instance.new("Sound", owner.HumanoidRootPart)
+  sound.SoundId = "rbxassetid://4377164922"
+  sound:Play()
+  game.Debris:AddItem(sound, 7)
+end)
