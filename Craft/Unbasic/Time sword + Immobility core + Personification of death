@@ -1,0 +1,232 @@
+local player = player or game.Players.LocalPlayer
+local tool = Instance.new("Tool", player:WaitForChild("Backpack"))
+tool.Name = "Sword of Lost Time"
+tool.Grip = CFrame.new(0, -2.4, 0) * CFrame.Angles(0, math.rad(180), 0)
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://439039467"
+mesh.TextureId = "rbxassetid://127863225608734" or "rbxassetid://13323668676"
+mesh.Scale = Vector3.new(0.075, 0.075, 0.075)
+
+local loop = Instance.new("Sound", handle)
+loop.SoundId = "rbxassetid://112878221721234"
+loop.Looped = true
+
+local core = Instance.new("Attachment", handle)
+
+local particle = Instance.new("ParticleEmitter", core)
+particle.Texture = "https://www.roblox.com/asset-thumbnail/image?assetId=3403074586&width=432&height=432&format=png"
+particle.Size = NumberSequence.new(0, 3)
+particle.Speed = NumberRange.new(0, 0)
+particle.LockedToPart = true
+particle.RotSpeed = NumberRange.new(-360, 360)
+particle.Transparency = NumberSequence.new(0, 1)
+particle.Lifetime = NumberRange.new(0.05, 0.05)
+particle.Rate = 25
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+local currentTime = tick()
+   if currentTime - lastPressTime >= 2 then
+     lastPressTime = currentTime
+local anims, owner = {"74909537", "74909551"}, tool.Parent
+local Anim = Instance.new("Animation")
+Anim.AnimationId = "rbxassetid://" .. anims[math.random(1, #anims)]
+local k = owner.Humanoid:LoadAnimation(Anim)
+k.Looped = false
+k:Play()
+k:AdjustSpeed(2)
+
+local sound = Instance.new("Sound", handle)
+sound.SoundId = "rbxassetid://45885030"
+sound.Volume = 1.5
+sound.PlaybackSpeed = 1
+sound:Play()
+game.Debris:AddItem(sound, 4)
+
+     local slash_root = Instance.new("Part", workspace)
+     slash_root.CFrame = owner.HumanoidRootPart.CFrame * CFrame.Angles(0, math.rad(-90), 0)
+     slash_root.Size = Vector3.new(1, 1, 1)
+     slash_root.CanCollide = false
+     slash_root.Anchored = true
+     slash_root.CanQuery = false
+     slash_root.CanTouch = false
+     slash_root.Color = Color3.new(0, 0, 0)
+     slash_root.Material = "Neon"
+     game.Debris:AddItem(slash_root, 3)
+   
+     local slash_mesh = Instance.new("SpecialMesh", slash_root)
+     slash_mesh.MeshId = "rbxassetid://114638860826912"
+     slash_mesh.VertexColor = Vector3.new(0, 0, 0)
+     slash_mesh.Scale = Vector3.new(4, 4, 4)
+     
+     local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(owner.HumanoidRootPart.Position + owner.HumanoidRootPart.CFrame.LookVector * 12, 15) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(owner) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+     for _, humanoid in next, humanoids do
+        humanoid:TakeDamage(50)
+        humanoid.RootPart.Velocity = owner.HumanoidRootPart.CFrame.LookVector * 100 + Vector3.new(0, 40, 0)
+        humanoid.PlatformStand = true task.delay(0.15, function() humanoid.PlatformStand = false end)
+     end
+   
+     local partTweenn2 = game:GetService("TweenService"):Create(slash_root, TweenInfo.new(0.65, Enum.EasingStyle.Exponential), {
+         CFrame = slash_root.CFrame * CFrame.new(-20, 0, 0),
+         Color = Color3.new(0, 0, 0),
+         Transparency = 1
+       })
+     partTweenn2:Play()
+
+local ball = Instance.new("Part", Workspace)
+ball.Material = "ForceField"
+ball.Shape = "Ball"
+ball.Size = Vector3.new(1, 1, 1)
+ball.Color = Color3.new(0, 0, 0)
+ball.CanCollide = false
+ball.CanQuery = false
+ball.Position = handle.Position + owner.HumanoidRootPart.CFrame.LookVector * 3
+game.Debris:AddItem(ball, 10)
+
+local humanoids = {}
+for _, part in next, workspace:GetPartBoundsInRadius(handle.Position, 7) do
+    if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(owner) then
+      if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+        table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+      end
+    end
+  end
+
+for _, humanoid in next, humanoids do
+   humanoid:TakeDamage(100)
+end
+
+ball.Touched:Connect(function(part)
+  if not part:IsDescendantOf(owner) and part.Parent:FindFirstChildOfClass("Humanoid") and part.Parent:GetAttribute("IsStopTimed") == nil then
+    local humanoid = part.Parent:FindFirstChildOfClass("Humanoid")
+    humanoid.Parent:SetAttribute("IsStopTimed", true)
+    
+    task.delay(1, function()
+      humanoid.Parent:SetAttribute("IsStopTimed", nil)
+    end)
+    
+    for _, prt in next, humanoid.Parent:GetDescendants() do
+      if prt:IsA("BasePart") then
+        prt.Anchored = true
+      end
+    end
+  end
+end)
+
+local sptu = {}
+ball.TouchEnded:Connect(function(part)
+  if part and not part:IsDescendantOf(owner) and part.Parent and part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and part.Parent:GetAttribute("IsStopTimed") ~= nil and not table.find(sptu, part.Parent:FindFirstChildOfClass("Humanoid")) then
+    local humanoid = part.Parent:FindFirstChildOfClass("Humanoid")
+    table.insert(sptu, humanoid)
+    humanoid:TakeDamage(50)
+    humanoid:ChangeState("FallingDown")
+    
+    for _, prt in next, humanoid.Parent:GetDescendants() do
+      if prt:IsA("BasePart") then
+        prt.Anchored = false
+        prt.Velocity = Vector3.zero
+        prt.AssemblyAngularVelocity = Vector3.zero
+      end
+    end
+  end
+end)
+
+local tween = game:GetService("TweenService"):Create(ball, TweenInfo.new(0.55, Enum.EasingStyle.Sine, Enum.EasingDirection.Out, 0, false, 0), {
+     Size = Vector3.new(13, 13, 13)
+  })
+tween:Play()
+
+local bv = Instance.new("BodyVelocity", ball)
+bv.Velocity = owner.HumanoidRootPart.CFrame.LookVector * 10
+bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+
+task.delay(7.5, function()
+  local tween = game:GetService("TweenService"):Create(ball, TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, false, 0), {
+     Transparency = 1
+   })
+  tween:Play()
+  local tween = game:GetService("TweenService"):Create(bv, TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, false, 0), {
+     Velocity = Vector3.new(0, 0, 0)
+    })
+  tween:Play()
+end)
+
+local tween = game:GetService("TweenService"):Create(bv, TweenInfo.new(1.1, Enum.EasingStyle.Sine, Enum.EasingDirection.Out, 0, false, 0), {
+     Velocity = bv.Velocity * 15
+  })
+tween:Play()
+     task.delay(3, function()
+       repeat task.wait()
+         bv.Velocity = (handle.Position - ball.Position).Unit * 250
+         ball.Size = ball.Size / 1.01
+       until (handle.Position - ball.Position).Magnitude <= 3
+       ball:Destroy()
+     end)
+   end
+end)
+
+tool.Equipped:Connect(function()
+  local owner = tool.Parent
+  loop.Playing = true
+  repeat task.wait(0.075)
+    for _, part in next, workspace:GetPartBoundsInRadius(handle.Position, 30) do
+      if part.Anchored == false and part:FindFirstChildWhichIsA("BodyMover") then
+        for _, bm in next, part:GetChildren() do
+          if bm:IsA("BodyMover") then
+            bm:Destroy()
+          elseif bm:IsA("TweenBase") then
+            bm:Cancel()
+          end
+        end
+        
+        part.Velocity = Vector3.zero
+        part.AssemblyLinearVelocity = Vector3.zero
+        part.AssemblyAngularVelocity = Vector3.zero
+        
+        local sound = Instance.new("Sound", handle)
+        sound.SoundId = "rbxassetid://126117582247178"
+        sound:Play()
+        game.Debris:AddItem(sound, 5)
+        
+        local shoot = Instance.new("Part", workspace)
+        shoot.Anchored = true
+        shoot.CanCollide = false
+        shoot.CanTouch = false
+        shoot.CanQuery = false
+        shoot.Transparency = 1
+        shoot.Position = handle.Position
+        shoot.Size = Vector3.new(1, 1, (handle.Position - part.Position).Magnitude)
+        shoot.CFrame = CFrame.lookAt(handle.Position, part.Position) * CFrame.new(0, 0, -(handle.Position - part.Position).Magnitude / 2)
+        game.Debris:AddItem(shoot, 5)
+        
+        local orbs = Instance.new("ParticleEmitter", shoot)
+        orbs.Enabled = false
+        orbs.Lifetime = NumberRange.new(0.5, 0.5)
+        orbs.Speed = NumberRange.new(0, 0)
+        orbs.Texture = particle.Texture
+        orbs.Size = NumberSequence.new(0, 1)
+        orbs.RotSpeed = NumberRange.new(-360, 360)
+        orbs.Transparency = NumberSequence.new(0, 1)
+        orbs.Shape = "Sphere"
+        orbs:Emit(20)
+        game.Debris:AddItem(orbs, 3)
+      end
+    end
+  until not tool or not handle or tool.Parent ~= owner
+end)
+
+tool.Unequipped:Connect(function()
+  loop.Playing = false
+end)
