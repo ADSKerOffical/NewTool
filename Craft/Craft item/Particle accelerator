@@ -1,0 +1,22 @@
+local tool = Instance.new("Tool", game.Players.LocalPlayer.Backpack)
+tool.Name = "Particle accelerator"
+tool.ToolTip = "Used to enhance weapons"
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+handle.Material = "Neon"
+handle.Shape = "Ball"
+handle.Color = Color3.new(0, 1, 1)
+handle.Size = Vector3.new(1.5, 1.5, 1.5)
+
+local accel = Instance.new("ParticleEmitter", handle)
+accel.Speed = NumberRange.new(1, 2)
+accel.Lifetime = NumberRange.new(1, 2)
+accel.Acceleration = Vector3.new(0, 2, 0)
+accel.Size = NumberSequence.new(1, 0)
+accel.RotSpeed = NumberRange.new(-90, 90)
+accel.SpreadAngle = Vector2.new(-360, 360)
+accel.Brightness = 1.5
+accel.Rate = 20
+accel.Texture = "https://www.roblox.com/asset-thumbnail/image?assetId=117311080&width=432&height=432&format=png"
+accel.Color = ColorSequence.new(Color3.new(0, 1, 1), Color3.new(0, 1, 1))
