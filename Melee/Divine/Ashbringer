@@ -1,0 +1,112 @@
+local player = player or game.Players.LocalPlayer or game.Players.ADSKer_man222
+local tool = Instance.new("Tool", player:WaitForChild("Backpack"))
+tool.Name = "Ashbringer"
+tool.CanBeDropped = false
+tool.Grip = CFrame.new(-1.35, 0, 0) * CFrame.Angles(math.rad(-90), math.rad(0), math.rad(-90))
+
+local handle = Instance.new("Part", tool)
+handle.Name = "Handle"
+
+local mesh = Instance.new("SpecialMesh", handle)
+mesh.MeshId = "rbxassetid://442916168"
+mesh.TextureId = "rbxassetid://442916173"
+mesh.Scale = Vector3.new(0.05, 0.05, 0.05)
+
+local lastPressTime = 0
+tool.Activated:Connect(function()
+    local currentTime = tick()
+    if currentTime - lastPressTime >= 4.5 then
+        lastPressTime = currentTime
+        local sound = Instance.new("Sound", handle)
+        sound.SoundId = "rbxassetid://45885030"
+        sound.Volume = 1.5
+        sound.PlaybackSpeed = 1
+        sound:Play()
+        game.Debris:AddItem(sound, 4)
+        
+        local sound2 = sound:Clone()
+        sound2.Parent = handle
+        sound2.SoundId = "rbxassetid://32656754"
+        sound2:Play()
+        game.Debris:AddItem(sound2, 6)
+        
+        local anim = Instance.new("Animation")
+        anim.AnimationId = "rbxassetid://218504594"
+        local play = tool.Parent.Humanoid:LoadAnimation(anim)
+        play:Play()
+        play:AdjustSpeed(2.5)
+        
+        local slash = Instance.new("Part")
+        slash.CFrame = tool.Parent.HumanoidRootPart.CFrame * CFrame.new(0, -0.3, -4)
+        slash.Color = Color3.new(1, 0.5, 0)
+        slash.Material = "Neon"
+        slash.CastShadow = false
+        slash.Size = Vector3.new(30, 15, 15)
+        slash.CanCollide = false
+        slash.Parent = game.Workspace
+        game.Debris:AddItem(slash, 9)
+        
+        task.delay(8, function()
+            game:GetService("TweenService"):Create(slash, TweenInfo.new(0.75, Enum.EasingStyle.Sine, Enum.EasingDirection.Out, 0, false, 0), {
+            Transparency = 1
+            }):Play()
+        end)
+        
+        --[[local plrs = {}
+        for _, part in next, game.Workspace:GetPartBoundsInRadius(handle.Position, 100) do
+            if part.Parent:IsA("Model") and game.Players:GetPlayerFromCharacter(part.Parent) then
+                if not table.find(plrs, game.Players:GetPlayerFromCharacter(part.Parent)) then
+                    table.insert(plrs, game.Players:GetPlayerFromCharacter(part.Parent))
+                end
+            end
+        end
+        
+        for _, player in next, plrs do
+            game.ReplicatedStorage.AshbringerLightEffect:FireClient(player)
+        end]]--
+        
+        local humanoids = {}
+        for _, part in next, workspace:GetPartBoundsInRadius(handle.Position, 10) do
+            if part.Parent:IsA("Model") and part.Parent:FindFirstChildOfClass("Humanoid") and not part:IsDescendantOf(tool.Parent) then
+                if not table.find(humanoids, part.Parent:FindFirstChildOfClass("Humanoid")) then
+                    table.insert(humanoids, part.Parent:FindFirstChildOfClass("Humanoid"))
+                end
+            end
+        end
+        
+        for _, humanoid in next, humanoids do
+            humanoid:TakeDamage(500)
+        end
+        
+        local owner, plr = tool.Parent, game.Players:GetPlayerFromCharacter(tool.Parent)
+        slash.Touched:Connect(function(hit)
+            if not hit:IsDescendantOf(owner) and hit.Parent:FindFirstChildOfClass("Humanoid") and hit.Parent:FindFirstChildOfClass("Humanoid").Health > 0 then
+                local humanoid = hit.Parent:FindFirstChildOfClass("Humanoid")
+                humanoid:TakeDamage(75)
+            elseif hit.Anchored == false and not (hit.Parent and hit.Parent:FindFirstChildOfClass("Humanoid")) and (hit.Size.X + hit.Size.Y + hit.Size.Z) <= 20 and not hit:IsDescendantOf(owner) and not (hit:IsA("Accessory") and hit:FindFirstAncestorOfClass("Model")) then
+                hit:BreakJoints()
+                hit.AssemblyLinearVelocity = (slash.Position - hit.Position).Unit * -350
+            end
+        end)
+        
+        local col = Instance.new("ColorCorrectionEffect", game.Lighting)
+        col.TintColor = Color3.new(1, 1, 1)
+        col.Saturation = 10
+        game.Debris:AddItem(col, 10)
+ 
+        local tween = game:GetService("TweenService"):Create(col, TweenInfo.new(0.7, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, false, 0), {
+        Saturation = 0
+        })
+        tween:Play()
+        
+        local slash_mesh = Instance.new("SpecialMesh")
+        slash_mesh.MeshId = "rbxassetid://4572036304"
+        slash_mesh.Scale = Vector3.new(3, 2, 2)
+        slash_mesh.Parent = slash
+        
+        local bv = Instance.new("BodyVelocity")
+        bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+        bv.Velocity = tool.Parent.HumanoidRootPart.CFrame.LookVector * 1000
+        bv.Parent = slash
+    end
+end)
