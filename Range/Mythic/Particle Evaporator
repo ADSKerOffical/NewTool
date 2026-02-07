@@ -1,4 +1,4 @@
-        local player = game.Players.LocalPlayer
+        local player = player or game.Players.LocalPlayer
         local tool = Instance.new("Tool", player:WaitForChild("Backpack"))
         tool.Name = "Particle Evaporator" 
         tool.ToolTip = "Particle Evaporator"
@@ -112,11 +112,20 @@
                     
                     for _, humanoid in next, humanoids do
                         humanoid:TakeDamage(80)
-                        for _, part in next, humanoid.Parent:GetChildren() do
+                        for _, part in next, humanoid.Parent:GetDescendants() do
                             if part:IsA("BasePart") and part.Anchored == false then
-                                part.Velocity = (shoot.Position - part.Position).Unit * -50
+                                part.Velocity = (shoot.Position - part.Position).Unit * -150
+                                if humanoid.Health <= 0 and humanoid:GetStateEnabled("Dead") and isnetworkowner(humanoid.RootPart) then
+                                   part.Material = "Neon"
+                                   Instance.new("BodyVelocity", part).Velocity = Vector3.new(0, 5, 0)
+                                   if part:FindFirstChildWhichIsA("SpecialMesh") then part:FindFirstChildWhichIsA("SpecialMesh").TextureId = "" end
+                                   game:GetService("TweenService"):Create(part, TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, false, 0), {
+                                       Transparency = 1,
+                                       Color = Color3.new(1, 1, 1)
+                                    }):Play()
+                                   end
+                                   end
                             end
-                        end
                     end
                     
                     local tween = game:GetService("TweenService"):Create(explosion, TweenInfo.new(1.35, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, false, 0), {
